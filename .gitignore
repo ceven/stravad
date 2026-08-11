@@ -1,0 +1,41 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# build outputs
+/dist
+/build
+
+# test output
+/coverage
+
+# local env files
+.env
+.env.*
+
+# saved agent/tool state
+.agents
+
+# caches
+/.cache
+.eslintcache
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# runtime data
+.DS_Store
+.npmrc
+.vscode/
+.idea/
+
+# TypeScript
+*.tsbuildinfo
+
+# misc
+*.local
+*.log

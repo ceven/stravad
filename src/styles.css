@@ -1,0 +1,188 @@
+:root {
+  color-scheme: light;
+  color: #111827;
+  background: #ffffff;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #fc4c02 0%, #ff8a42 18%, #ffffff 40%, #f8fafc 100%);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.page-shell {
+  width: min(1080px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 3rem 0 4rem;
+}
+
+header {
+  margin-bottom: 2rem;
+}
+
+h1 {
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  margin: 0 0 0.35rem;
+  color: #111827;
+}
+
+p {
+  margin: 0;
+  color: #475569;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid rgba(252, 76, 2, 0.16);
+  border-radius: 1rem;
+  padding: 1.75rem;
+  box-shadow: 0 24px 90px rgba(15, 23, 42, 0.12);
+}
+
+.auth-card,
+.feed-card {
+  max-width: 520px;
+}
+
+.feed-card {
+  max-height: min(70vh, 640px);
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable both-edges;
+}
+
+.auth-card label {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  color: #334155;
+}
+
+.auth-card input {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #f8fafc;
+  padding: 0.9rem 1rem;
+  color: #0f172a;
+}
+
+.button-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1.25rem;
+}
+
+button {
+  border: none;
+  border-radius: 0.85rem;
+  padding: 0.95rem 1.2rem;
+  cursor: pointer;
+  background: #fc4c02;
+  color: white;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button.secondary {
+  background: #ffffff;
+  color: #fc4c02;
+  border: 1px solid rgba(252, 76, 2, 0.2);
+}
+
+button.oauth {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.divider {
+  margin: 1.5rem 0 0.75rem;
+  text-align: center;
+  color: #94a3b8;
+}
+
+.message {
+  margin-top: 1rem;
+  color: #334155;
+}
+
+.account-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.account-bar strong {
+  display: block;
+}
+
+.activity-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.feed-card p {
+  margin: 0.5rem 0 0;
+}
+
+.activity-list li {
+  padding: 1rem;
+  border-radius: 1rem;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.activity-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.activity-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.activity-header span {
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+.activity-meta,
+.activity-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin-top: 0.85rem;
+  color: #cbd5e1;
+}
+
+.activity-stats span {
+  font-size: 0.95rem;
+}
+
+@media (max-width: 640px) {
+  .page-shell {
+    padding-top: 2rem;
+  }
+}
