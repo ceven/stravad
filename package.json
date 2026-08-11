@@ -2,6 +2,7 @@
   "name": "stravad",
   "private": true,
   "type": "module",
+  "homepage": "http://ceven.github.io/stravad",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

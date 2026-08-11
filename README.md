@@ -1,13 +1,12 @@
 # Stravad
 
-A lightweight React app that displays Strava activity data stored in Supabase.
+A lightweight React app that displays your Strava activities in fun ways, and allow you to gain further insights!
 
 ## What this project does
 
-- Lets users sign up and log in with email/password.
-- Syncs Strava activity data into a Supabase database on a scheduled GitHub Actions workflow.
-- Shows the latest activities in a simple feed after login.
-- Supports password reset via email with Supabase auth.
+- Lets users sign up and log in with email/password
+- Syncs user's Strava activities into a database
+- Shows the latest activities in a simple feed after login
 
 ## Architecture
 
@@ -17,9 +16,9 @@ A lightweight React app that displays Strava activity data stored in Supabase.
   - `src/types.ts` defines shared data shapes like `Activity`.
 
 - **Backend / sync script**: `scripts/sync-strava.ts`
-  - Refreshes the Strava OAuth token as needed.
   - Fetches recent Strava activities from the Strava API.
   - Writes new activity rows into Supabase, avoiding duplicate imports.
+  - Refreshes the Strava OAuth token as needed.
 
 - **Database**: Supabase Postgres
   - Stores authenticated user data and Strava activity records.
