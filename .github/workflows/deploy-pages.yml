@@ -34,12 +34,5 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: npm run build
 
-      - name: Upload Pages artifact
-        id: upload-pages-artifact
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: dist/
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
+      - name: Upload Pages artifact & Deploy to GitHub Pages
+        run: npm run deploy
