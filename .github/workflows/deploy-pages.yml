@@ -11,7 +11,7 @@ jobs:
     environment:
       name: github-pages
     permissions:
-      contents: read
+      contents: write  # ← Required for pushing to gh-pages branch
       pages: write
       id-token: write
 
