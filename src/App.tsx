@@ -56,8 +56,9 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<AppContent />} />
-        <Route path="/strava/callback" element={<StravaCallback />} />
-        <Route path="/strava/connect" element={<StravaConnect />} />
+        <Route path="/stravad" element={<AppContent />} />
+        <Route path="/stravad/strava/callback" element={<StravaCallback />} />
+        <Route path="/stravad/strava/connect" element={<StravaConnect />} />
       </Routes>
     </BrowserRouter>
   );
