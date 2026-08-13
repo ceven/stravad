@@ -8,10 +8,6 @@ const STRAVA_AUTH_URL = 'https://www.strava.com/oauth/authorize';
 export default function StravaConnect() {
   const [connected, setConnected] = useState<boolean>(false);
 
-  console.log('STRAVA_CLIENT_ID:', STRAVA_CLIENT_ID);
-  console.log('REDIRECT_URI:', REDIRECT_URI);
-  console.log('STRAVA_AUTH_URL:', STRAVA_AUTH_URL);
-
   const handleConnect = (): void => {
 
     // c.f. https://developers.strava.com/docs/authentication/#detailsaboutrequestingaccess 
@@ -20,7 +16,7 @@ export default function StravaConnect() {
     authUrl.searchParams.set('client_id', STRAVA_CLIENT_ID);
     authUrl.searchParams.set('redirect_uri', REDIRECT_URI);
     authUrl.searchParams.set('response_type', 'code');
-    authUrl.searchParams.set('approval_prompt', 'auto');
+    authUrl.searchParams.set('approval_prompt', 'force'); // 'auto' or 'force' to always prompt for approval
     authUrl.searchParams.set('scope', 'read,activity:read');
 
     window.location.href = authUrl.toString();

@@ -38,8 +38,6 @@ export default function StravaCallback() {
       return;
     }
 
-    console.log('Received Strava code:', code);
-
     const exchangeCode = async (): Promise<void> => {
       try {
         const { data: { session } } = await supabase.auth.getSession();

@@ -13,6 +13,9 @@ const { STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET } = process.env as {
   STRAVA_CLIENT_SECRET: string;
 };
 
+const DB_SCHEMA = 'stravad';
+const STRAVA_TOKENS_TABLE = 'users_strava_tokens'; // table name for storing Strava tokens
+
 interface StravaTokenResponse {
   access_token: string;
   refresh_token: string;
@@ -52,13 +55,40 @@ app.post('/v1/strava/exchange', async (req: Request<{}, {}, ExchangeRequestBody>
     const data = (await response.json()) as StravaTokenResponse;
     const { access_token, refresh_token, expires_at, athlete } = data;
 
-    const { error } = await supabaseAdmin.from('strava_tokens').upsert(
+    // insert the athlete in table stravad.athletes if not already present
+    if (athlete) {
+      const { error: athleteError } = await supabaseAdmin
+        .schema(DB_SCHEMA)
+        .from('athletes')
+        .upsert(
+          {
+            user_id: userId,
+            strava_athlete_id: athlete.id,
+            email: null, // Strava API does not return email in this response
+            first_name: athlete.firstname,
+            last_name: athlete.lastname,
+            // created_at is timestamp with time zone in Postgres; use the current time
+            created_at: new Date().toISOString(),
+          },
+          { onConflict: 'strava_athlete_id' }
+        );
+
+      if (athleteError) {
+        console.error('Error upserting athlete in Supabase:', athleteError);
+        throw athleteError;
+      }
+    }
+
+    // expires_at is seconds since epoch (number) ; DB column is timestamptz (with time zone)
+    const expiresAtIso = new Date(expires_at * 1000).toISOString();
+    // insert strava tokens into Supabase table stravad.users_strava_tokens
+    const { error } = await supabaseAdmin.schema(DB_SCHEMA).from(STRAVA_TOKENS_TABLE).upsert(
       {
         user_id: userId,
         access_token: access_token,
         refresh_token: refresh_token,
-        expires_at: expires_at,
-        scope: 'read,activity:read',
+        expires_at: expiresAtIso,
+        // scope: 'read,activity:read', // TODO: store the scope 
       },
       { onConflict: 'user_id' }
     );
@@ -78,7 +108,8 @@ app.post('/v1/strava/exchange', async (req: Request<{}, {}, ExchangeRequestBody>
 // --- Step 2: fetch (and refresh if needed) a valid access token from Supabase ---
 async function getValidAccessToken(userId: string): Promise<string> {
   const { data: tokens, error } = await supabaseAdmin
-    .from('strava_tokens')
+    .schema(DB_SCHEMA)
+    .from(STRAVA_TOKENS_TABLE)
     .select('access_token, refresh_token, expires_at')
     .eq('user_id', userId)
     .single();
@@ -107,7 +138,8 @@ async function getValidAccessToken(userId: string): Promise<string> {
   const refreshed = (await response.json()) as StravaTokenResponse;
 
   const { error: updateError } = await supabaseAdmin
-    .from('strava_tokens')
+    .schema(DB_SCHEMA)
+    .from(STRAVA_TOKENS_TABLE)
     .update({
       access_token: refreshed.access_token,
       refresh_token: refreshed.refresh_token,
@@ -137,7 +169,8 @@ app.get('/v1/strava/activities/:userId', async (req: Request<{ userId: string }>
 // --- Optional: check connection status (e.g. for showing "Connected" in the UI) ---
 app.get('/v1/strava/status/:userId', async (req: Request<{ userId: string }>, res: Response) => {
   const { data, error } = await supabaseAdmin
-    .from('strava_tokens')
+    .schema(DB_SCHEMA)
+    .from(STRAVA_TOKENS_TABLE)
     .select('strava_athlete_id, created_at')
     .eq('user_id', req.params.userId)
     .maybeSingle();
@@ -149,7 +182,8 @@ app.get('/v1/strava/status/:userId', async (req: Request<{ userId: string }>, re
 // --- Optional: disconnect ---
 app.delete('/v1/strava/disconnect/:userId', async (req: Request<{ userId: string }>, res: Response) => {
   const { error } = await supabaseAdmin
-    .from('strava_tokens')
+    .schema(DB_SCHEMA)
+    .from(STRAVA_TOKENS_TABLE)
     .delete()
     .eq('user_id', req.params.userId);
 
