@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from './lib/supabaseClient';
 import type { Activity } from './types';
+import StravaConnect from './StravaConnect';
 
 type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>['data'] extends { session: infer S }
   ? S
@@ -26,13 +27,17 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
       return;
     }
 
-    async function loadActivities() {
+    async function loadActivities(userId: string) {
       setLoading(true);
       setMessage(null);
+
+      // TODO: customize this query, remove hardcoded fields, and add pagination
       const { data, error } = await supabase
         .from('activities')
-        .select('*')
-        .order('start_date_local', { ascending: false });
+        .select('name, type, distance')
+        .eq('user_id', userId)
+        .order('start_date_local', { ascending: false })
+        .limit(20);
 
       if (error) {
         setMessage(error.message);
@@ -42,7 +47,7 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
       setLoading(false);
     }
 
-    loadActivities();
+    loadActivities(session.user.id);
   }, [session]);
 
   const handleSignOut = async () => {
@@ -61,6 +66,10 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
         <button type="button" className="secondary" onClick={handleSignOut} disabled={loading}>
           Sign out
         </button>
+      </div>
+
+      <div>        
+        <StravaConnect/>
       </div>
 
       <h2>Recent activities</h2>
