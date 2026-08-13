@@ -55,7 +55,6 @@ app.post('/v1/strava/exchange', async (req: Request<{}, {}, ExchangeRequestBody>
     const { error } = await supabaseAdmin.from('strava_tokens').upsert(
       {
         user_id: userId,
-        strava_athlete_id: athlete?.id,
         access_token: access_token,
         refresh_token: refresh_token,
         expires_at: expires_at,
