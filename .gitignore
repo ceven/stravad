@@ -39,3 +39,8 @@ pnpm-debug.log*
 # misc
 *.local
 *.log
+
+server/.env
+server/.env.local
+server/.env.*.local
+server/node_modules
