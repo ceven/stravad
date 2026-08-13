@@ -9,6 +9,7 @@ const stravaAccessToken = process.env.STRAVA_ACCESS_TOKEN;
 const stravaRefreshToken = process.env.STRAVA_REFRESH_TOKEN;
 const stravaClientId = process.env.STRAVA_CLIENT_ID;
 const stravaClientSecret = process.env.STRAVA_CLIENT_SECRET;
+const grantType = "refresh_token"; // This is the grant type for refreshing the access token
 
 if (!supabaseUrl || !supabaseServiceRoleKey) {
   throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
