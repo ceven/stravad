@@ -69,6 +69,7 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
       </div>
 
 {/* TODO: call API to verify if current user has connected Strava account already with valid refresh token ; in which case display activites w/o connecting to Strava. Otherwise, display button */}
+                
       <div>        
         <StravaConnect/>
       </div>

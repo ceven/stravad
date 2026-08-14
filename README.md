@@ -5,17 +5,19 @@ A lightweight React app that displays your Strava activities in fun ways, and al
 ## What this project does
 
 - Lets users sign up and log in with email/password
+- Allow users to connect to their Strava account
 - Syncs user's Strava activities into a database
-- Shows the latest activities in a simple feed after login
+- Shows user's Strava activities in a simple feed
 
 ## Architecture
 
 - **Frontend**: Vite + React + TypeScript.
-  - `src/App.tsx` contains the auth UI, session handling, and activity feed.
-  - `src/lib/supabaseClient.ts` initializes the Supabase client using environment variables.
-  - `src/types.ts` defines shared data shapes like `Activity`.
 
-- **Backend / sync script**: `scripts/sync-strava.ts`
+- **Backend**: Supabase functions
+
+The Strava OAuth callback / exchange is implemented as a Supabase Edge Function (see `supabase/functions/strava-exchange`). This function performs the code->token exchange with Strava, verifies the caller's Supabase JWT, and stores tokens using the Supabase service role key (server-side only).
+
+- **Sync script**: `scripts/sync-strava.ts`
   - Fetches recent Strava activities from the Strava API.
   - Writes new activity rows into Supabase, avoiding duplicate imports.
   - Refreshes the Strava OAuth token as needed.
@@ -30,18 +32,38 @@ A lightweight React app that displays your Strava activities in fun ways, and al
 
 ## Environment
 
-The app expects runtime and build secrets in `.env` or GitHub Actions secrets, including:
+The app expects runtime and build secrets in `.env`, Supabase, and GitHub Actions secrets. Secrets include:
 
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_ANON_KEY`
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
-- `STRAVA_ACCESS_TOKEN`
-- `STRAVA_REFRESH_TOKEN`
 - `STRAVA_CLIENT_ID`
 - `STRAVA_CLIENT_SECRET`
 
-## Run locally
+## Run the project locally 
+
+### Run Supabase Stack - including database
+
+  1. Install the Supabase CLI (see https://supabase.com/docs/guides/cli). Example installs:
+
+  ```bash
+  # npm (cross-platform)
+  npm install -g supabase
+
+  # or on macOS via Homebrew
+  brew install supabase/tap/supabase
+  ```
+
+  2. Starts the local Supabase services with `supabase start`
+  3. Run database migrations with `supabase migration up`
+
+The database UI will be available at:
+```
+http://localhost:54323/project/default
+```
+
+### Run Frontend Locally
 
 1. Install dependencies:
    ```bash
@@ -51,6 +73,32 @@ The app expects runtime and build secrets in `.env` or GitHub Actions secrets, i
    ```bash
    npm run dev
    ```
+
+
+  ### Run the Supabase backend function locally
+
+Serve the function locally from the project root:
+
+  ```bash
+  supabase functions serve strava-exchange --env-file supabase/functions/.env
+  ```
+
+  The function will be available at:
+
+  ```
+  http://localhost:54321/functions/v1/strava-exchange
+  ```
+
+  Example request (pass the user's JWT in `Authorization`):
+
+  ```bash
+  curl -X POST 'http://localhost:54321/functions/v1/strava-exchange' \
+    -H "Authorization: Bearer $USER_ACCESS_TOKEN" \
+    -H "Content-Type: application/json" \
+    -d '{"code":"<STRAVA_CODE>"}'
+  ```
+
+  If you prefer to test via the frontend, ensure `VITE_SUPABASE_URL` points to your local Supabase (usually `http://localhost:54321`) so the client posts to the local function URL.
 
 ## Notes
 

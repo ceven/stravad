@@ -81,7 +81,7 @@ export async function deleteTokens(userId: string) {
 export async function getStravaAthlete(userId: string) {
   const { data, error } = await supabaseAdmin
     .schema(DB_SCHEMA)
-    .from(STRAVA_TOKENS_TABLE)
+    .from(ATHLETES_TABLE)
     .select('strava_athlete_id, created_at')
     .eq('user_id', userId)
     .maybeSingle();

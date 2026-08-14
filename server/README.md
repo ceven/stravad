@@ -21,6 +21,6 @@ npm start
 
 Usage
 
-Set your Strava app's redirect URI to `http://<server-host>:<PORT>/auth/strava/callback` (e.g. `http://localhost:3001/auth/strava/callback`).
+Set your Strava app's redirect URI to `http://<server-host>:<PORT>/v1/strava/callback` (e.g. `http://localhost:3001/v1/strava/callback`).
 
 When Strava redirects back, the server exchanges the code and redirects the browser to the frontend `FRONTEND_URL/strava/callback` with `?connected=1`.
