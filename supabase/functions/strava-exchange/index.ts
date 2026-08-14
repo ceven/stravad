@@ -8,6 +8,7 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 const STRAVAD_SCHEMA = 'stravad';
+const STRAVAD_ATHLETES_TABLE = 'athletes';
 const STRAVAD_USERS_TOKENS_TABLE = 'users_strava_tokens';
 
 const STRAVA_TOKEN_URL = 'https://www.strava.com/oauth/token';
@@ -70,6 +71,23 @@ serve(async (req: Request) => {
     }
 
     const { access_token, refresh_token, expires_at, athlete } = await stravaRes.json();
+    
+    const createdAt = new Date(athlete.created_at).toISOString();
+
+    // TODO: insert strava user into athletes table if not already present
+    const { error: dbErrorInsertUser } = await supabaseClient.schema(STRAVAD_SCHEMA).from(STRAVAD_ATHLETES_TABLE).upsert(
+      {
+        user_id: userId,
+        strava_athlete_id: athlete.id,
+        email: "", // strava does not return email
+        first_name: athlete.fist_name,
+        last_name: athlete.last_name,
+        created_at: createdAt,
+      },
+      { onConflict: 'user_id' }
+    );
+
+    if (dbErrorInsertUser) throw dbErrorInsertUser;
 
     // convert expires_at (epoch seconds) to timestamptz  
     const expiresAtIso = new Date(expires_at * 1000).toISOString();
