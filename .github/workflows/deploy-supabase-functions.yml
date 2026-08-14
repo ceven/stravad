@@ -38,6 +38,6 @@ jobs:
             if [ -d "$d" ]; then
               name=$(basename "$d")
               echo "Deploying function: $name"
-              supabase functions deploy "$name" --project-ref "$SUPABASE_PROJECT_REF" --no-verify
+              supabase functions deploy "$name" --project-ref "$SUPABASE_PROJECT_REF"
             fi
           done
