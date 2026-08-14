@@ -38,7 +38,7 @@ export default function StravaCallback() {
         if (!res.ok) throw new Error('Exchange failed');
 
         setStatus('success');
-        setTimeout(() => navigate('/'), 1000);
+        setTimeout(() => navigate('/'), 2000);
       } catch (err) {
         console.error(err);
         setStatus('error');

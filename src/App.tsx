@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import StravaConnect from './StravaConnect';
 import StravaCallback from './StravaCallback';
 import AuthFlow from './AuthFlow';
@@ -53,13 +53,13 @@ function AppContent() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route path="/" element={<AppContent />} />
         <Route path="/stravad" element={<AppContent />} />
-        <Route path="/stravad/strava/callback" element={<StravaCallback/>} />
+        <Route path="/stravad/strava/callback" element={<StravaCallback />} />
         <Route path="/stravad/strava/connect" element={<StravaConnect />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
