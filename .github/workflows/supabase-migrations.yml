@@ -1,7 +1,10 @@
 name: Run supabase migrations
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+    paths:
+      - 'supabase/migrations/**'
 
 jobs:
   migrate:
