@@ -1,0 +1,116 @@
+name: Deploy Strava activity sync
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/strava-activity-sync/**'
+      - 'supabase/migrations/**'
+      - 'supabase/config.toml'
+      - '.github/workflows/deploy-strava-activity-sync.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      STRAVA_CLIENT_ID: ${{ secrets.STRAVA_CLIENT_ID }}
+      STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
+      STRAVA_SYNC_CRON_SECRET: ${{ secrets.STRAVA_SYNC_CRON_SECRET }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v3
+        with:
+          version: latest
+
+      - name: Verify deployment secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          for secret_name in \
+            SUPABASE_ACCESS_TOKEN \
+            SUPABASE_PROJECT_REF \
+            SUPABASE_DB_PASSWORD \
+            STRAVA_CLIENT_ID \
+            STRAVA_CLIENT_SECRET \
+            STRAVA_SYNC_CRON_SECRET; do
+            if [ -z "${!secret_name}" ]; then
+              echo "Missing required GitHub Actions secret: ${secret_name}" >&2
+              exit 1
+            fi
+          done
+
+      - name: Authenticate with Supabase
+        run: supabase login --token "$SUPABASE_ACCESS_TOKEN"
+
+      - name: Link Supabase project
+        run: supabase link --project-ref "$SUPABASE_PROJECT_REF"
+
+      - name: Create or update Edge Function secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase secrets set \
+            "STRAVA_CLIENT_ID=$STRAVA_CLIENT_ID" \
+            "STRAVA_CLIENT_SECRET=$STRAVA_CLIENT_SECRET" \
+            "STRAVA_SYNC_CRON_SECRET=$STRAVA_SYNC_CRON_SECRET"
+
+      - name: Deploy activity sync function
+        run: supabase functions deploy strava-activity-sync --use-api
+
+      - name: Create or update Vault secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          sync_secret_base64="$(printf %s "$STRAVA_SYNC_CRON_SECRET" | base64 | tr -d '\n')"
+          project_url_base64="$(printf %s "https://${SUPABASE_PROJECT_REF}.supabase.co" | base64 | tr -d '\n')"
+
+          supabase db query --linked "
+            do \$\$
+            declare
+              sync_secret_id uuid;
+              project_url_id uuid;
+            begin
+              select id into sync_secret_id from vault.secrets where name = 'strava_sync_cron_secret';
+              if sync_secret_id is null then
+                perform vault.create_secret(
+                  convert_from(decode('$sync_secret_base64', 'base64'), 'UTF8'),
+                  'strava_sync_cron_secret'
+                );
+              else
+                perform vault.update_secret(
+                  sync_secret_id,
+                  convert_from(decode('$sync_secret_base64', 'base64'), 'UTF8'),
+                  'strava_sync_cron_secret'
+                );
+              end if;
+
+              select id into project_url_id from vault.secrets where name = 'project_url';
+              if project_url_id is null then
+                perform vault.create_secret(
+                  convert_from(decode('$project_url_base64', 'base64'), 'UTF8'),
+                  'project_url'
+                );
+              else
+                perform vault.update_secret(
+                  project_url_id,
+                  convert_from(decode('$project_url_base64', 'base64'), 'UTF8'),
+                  'project_url'
+                );
+              end if;
+            end
+            \$\$;
+          "
+
+      - name: Apply database migrations
+        run: supabase db push --linked

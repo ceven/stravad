@@ -30,6 +30,8 @@ The Strava OAuth callback / exchange is implemented as a Supabase Edge Function 
   - `/.github/workflows/daily-sync.yml` runs the Strava sync script on a daily schedule and supports manual dispatch.
   - The workflow updates Strava tokens in GitHub Secrets after refresh.
 
+- **Supabase Cron**: `strava-activity-sync` runs once every 24 hours (at 00:00 UTC). It refreshes each connected athlete's Strava token when necessary and upserts activities from the previous 24 hours into `stravad.activities`.
+
 ## Environment
 
 The app expects runtime and build secrets in `.env`, Supabase, and GitHub Actions secrets. Secrets include:
@@ -40,6 +42,22 @@ The app expects runtime and build secrets in `.env`, Supabase, and GitHub Action
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `STRAVA_CLIENT_ID`
 - `STRAVA_CLIENT_SECRET`
+- `STRAVA_SYNC_CRON_SECRET`
+
+### Deploy the daily Supabase sync
+
+The `Deploy Strava activity sync` GitHub Actions workflow provisions the Edge Function secrets, creates or updates the matching Vault secrets, deploys the function, and applies pending migrations. It runs when the sync function, Supabase migrations, or its workflow file changes on `main`; it can also be run manually.
+
+Set these GitHub Actions secrets before its first run:
+
+- `SUPABASE_ACCESS_TOKEN`
+- `SUPABASE_PROJECT_REF`
+- `SUPABASE_DB_PASSWORD`
+- `STRAVA_CLIENT_ID`
+- `STRAVA_CLIENT_SECRET`
+- `STRAVA_SYNC_CRON_SECRET` (a high-entropy value shared only by the workflow, Vault, and Edge Function)
+
+The scheduled job is named `sync-strava-activities-daily`. Inspect its runs with `select * from cron.job_run_details order by start_time desc;`.
 
 ## Run the project locally 
 
