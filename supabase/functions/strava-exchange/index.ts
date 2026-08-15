@@ -80,8 +80,8 @@ serve(async (req: Request) => {
         user_id: userId,
         strava_athlete_id: athlete.id,
         email: "", // strava does not return email
-        first_name: athlete.fist_name,
-        last_name: athlete.last_name,
+        first_name: athlete.firstname,
+        last_name: athlete.lastname,
         created_at: createdAt,
       },
       { onConflict: 'user_id' }
