@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from './lib/supabaseClient';
-import type { Activity } from './types';
+import type { Activity, Athlete } from './types';
 import StravaConnect from './StravaConnect';
 
 type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>['data'] extends { session: infer S }
@@ -17,6 +17,7 @@ function formatDuration(seconds: number) {
 }
 
 export default function ActivityFeed({ session }: { session: SessionType }) {
+  const [athlete, setAthlete] = useState<Athlete | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [hasConnectedStrava, setHasConnectedStrava] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
@@ -26,6 +27,7 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
     if (!session) {
       setActivities([]);
       setHasConnectedStrava(null);
+      setAthlete(null);
       return;
     }
 
@@ -36,13 +38,14 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
       const { data: athlete, error: athleteError } = await supabase
         .schema('stravad')
         .from('athletes')
-        .select('user_id')
+        .select('user_id, strava_athlete_id, first_name, last_name')
         .eq('user_id', userId)
         .maybeSingle();
 
       if (athleteError) {
         setHasConnectedStrava(null);
         setActivities([]);
+        setAthlete(null);
         setMessage(athleteError.message);
         setLoading(false);
         return;
@@ -54,8 +57,11 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
       if (!isConnected) {
         setActivities([]);
         setLoading(false);
+        setAthlete(null);
         return;
       }
+
+      setAthlete(athlete);
 
       // TODO: customize this query, remove hardcoded fields, and add pagination
       const { data, error } = await supabase
@@ -101,7 +107,7 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
 
       {hasConnectedStrava === true && (
         <>
-          <h2>Recent activities</h2>
+          <h2>Recent activities for {athlete?.first_name} {athlete?.last_name} </h2>
           {loading ? (
             <p>Loading activities…</p>
           ) : activities.length === 0 ? (

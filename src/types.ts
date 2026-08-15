@@ -11,3 +11,10 @@ export type Activity = {
   total_elevation_gain: number;
   strava_id: number;
 };
+
+export type Athlete = {
+  user_id: string,
+  strava_athlete_id: string, 
+  first_name: string, 
+  last_name: string
+};
