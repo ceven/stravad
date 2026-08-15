@@ -67,7 +67,7 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
       const { data, error } = await supabase
         .schema('stravad')
         .from('activities')
-        .select('name, type, distance')
+        .select('name, type, distance, moving_time, elapsed_time, start_date_local, average_speed, max_speed, total_elevation_gain')
         .eq('user_id', userId)
         .order('start_date_local', { ascending: false })
         .limit(20);
