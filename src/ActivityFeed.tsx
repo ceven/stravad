@@ -18,12 +18,14 @@ function formatDuration(seconds: number) {
 
 export default function ActivityFeed({ session }: { session: SessionType }) {
   const [activities, setActivities] = useState<Activity[]>([]);
+  const [hasConnectedStrava, setHasConnectedStrava] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!session) {
       setActivities([]);
+      setHasConnectedStrava(null);
       return;
     }
 
@@ -31,8 +33,33 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
       setLoading(true);
       setMessage(null);
 
+      const { data: athlete, error: athleteError } = await supabase
+        .schema('stravad')
+        .from('athletes')
+        .select('user_id')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (athleteError) {
+        setHasConnectedStrava(null);
+        setActivities([]);
+        setMessage(athleteError.message);
+        setLoading(false);
+        return;
+      }
+
+      const isConnected = Boolean(athlete);
+      setHasConnectedStrava(isConnected);
+
+      if (!isConnected) {
+        setActivities([]);
+        setLoading(false);
+        return;
+      }
+
       // TODO: customize this query, remove hardcoded fields, and add pagination
       const { data, error } = await supabase
+        .schema('stravad')
         .from('activities')
         .select('name, type, distance')
         .eq('user_id', userId)
@@ -68,38 +95,40 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
         </button>
       </div>
 
-{/* TODO: call API to verify if current user has connected Strava account already with valid refresh token ; in which case display activites w/o connecting to Strava. Otherwise, display button */}
-                
-      <div>        
-        <StravaConnect/>
-      </div>
+      {hasConnectedStrava === false && <StravaConnect />}
 
-      <h2>Recent activities</h2>
-      {loading ? (
-        <p>Loading activities…</p>
-      ) : activities.length === 0 ? (
-        <p>No synced activities yet. Activities sync daily. We are working on adding more features!</p>
-      ) : (
-        <ul className="activity-list">
-          {activities.map((activity) => (
-            <li key={activity.id}>
-              <div className="activity-header">
-                <h3>{activity.name}</h3>
-                <span>{activity.type}</span>
-              </div>
-              <div className="activity-meta">
-                <span>{new Date(activity.start_date_local).toLocaleDateString()}</span>
-                <span>{(activity.distance / 1000).toFixed(1)} km</span>
-                <span>{formatDuration(activity.moving_time)}</span>
-              </div>
-              <div className="activity-stats">
-                <span>Avg {activity.average_speed.toFixed(2)} m/s</span>
-                <span>Max {activity.max_speed.toFixed(2)} m/s</span>
-                <span>Elevation {activity.total_elevation_gain.toFixed(0)} m</span>
-              </div>
-            </li>
-          ))}
-        </ul>
+      {message && <p role="alert">{message}</p>}
+
+      {hasConnectedStrava === true && (
+        <>
+          <h2>Recent activities</h2>
+          {loading ? (
+            <p>Loading activities…</p>
+          ) : activities.length === 0 ? (
+            <p>No synced activities yet. Activities sync daily. We are working on adding more features!</p>
+          ) : (
+            <ul className="activity-list">
+              {activities.map((activity) => (
+                <li key={activity.id}>
+                  <div className="activity-header">
+                    <h3>{activity.name}</h3>
+                    <span>{activity.type}</span>
+                  </div>
+                  <div className="activity-meta">
+                    <span>{new Date(activity.start_date_local).toLocaleDateString()}</span>
+                    <span>{(activity.distance / 1000).toFixed(1)} km</span>
+                    <span>{formatDuration(activity.moving_time)}</span>
+                  </div>
+                  <div className="activity-stats">
+                    <span>Avg {activity.average_speed.toFixed(2)} m/s</span>
+                    <span>Max {activity.max_speed.toFixed(2)} m/s</span>
+                    <span>Elevation {activity.total_elevation_gain.toFixed(0)} m</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
       )}
     </section>
   );
