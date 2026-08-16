@@ -21,7 +21,7 @@ input {
 }
 
 .page-shell {
-  width: min(1080px, calc(100% - 2rem));
+  width: min(1240px, calc(100% - 2rem));
   margin: 0 auto;
   padding: 3rem 0 4rem;
 }
@@ -49,16 +49,30 @@ p {
   box-shadow: 0 24px 90px rgba(15, 23, 42, 0.12);
 }
 
-.auth-card,
-.feed-card {
+.auth-card {
   max-width: 520px;
 }
 
 .feed-card {
-  max-height: min(70vh, 640px);
+  width: min(100%, 960px);
+  max-width: none;
+  max-height: min(78vh, 820px);
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+  border-color: rgba(252, 76, 2, 0.22);
+  box-shadow: 0 28px 80px rgba(15, 23, 42, 0.16);
   overflow-y: auto;
   scroll-behavior: smooth;
   scrollbar-gutter: stable both-edges;
+}
+
+.feed-card::-webkit-scrollbar {
+  width: 0.7rem;
+}
+
+.feed-card::-webkit-scrollbar-thumb {
+  background: rgba(252, 76, 2, 0.45);
+  border: 3px solid #ffffff;
+  border-radius: 999px;
 }
 
 .auth-card label {
@@ -125,11 +139,32 @@ button.oauth {
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 1rem 1.15rem;
+  background: #fff7f2;
+  border: 1px solid rgba(252, 76, 2, 0.16);
+  border-radius: 1rem;
 }
 
 .account-bar strong {
   display: block;
+  color: #1e293b;
+  font-size: 1.05rem;
+}
+
+.account-bar p {
+  margin-top: 0.2rem;
+  color: #64748b;
+  font-size: 0.8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.feed-card h2 {
+  margin: 0 0 1.35rem;
+  color: #0f172a;
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  letter-spacing: -0.03em;
 }
 
 .activity-list {
@@ -137,7 +172,7 @@ button.oauth {
   padding: 0;
   margin: 0;
   display: grid;
-  gap: 1rem;
+  gap: 1.15rem;
 }
 
 .feed-card p {
@@ -145,10 +180,22 @@ button.oauth {
 }
 
 .activity-list li {
-  padding: 1rem;
-  border-radius: 1rem;
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(148, 163, 184, 0.12);
+  padding: 1.35rem;
+  border-radius: 1.15rem;
+  background: linear-gradient(135deg, #172033, #0f172a);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.activity-list li:hover {
+  transform: translateY(-2px);
+  border-color: rgba(252, 76, 2, 0.7);
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.2);
+}
+
+.activity-load-more {
+  height: 1px;
 }
 
 .activity-header {
@@ -160,29 +207,65 @@ button.oauth {
 
 .activity-header h3 {
   margin: 0;
-  font-size: 1.05rem;
+  color: #f8fafc;
+  font-size: 1.2rem;
+  letter-spacing: -0.01em;
 }
 
 .activity-header span {
-  color: #68abc8;
+  align-self: flex-start;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(104, 171, 200, 0.16);
+  color: #8dd3ef;
   font-weight: 600;
+  font-size: 0.85rem;
 }
 
 .activity-meta,
 .activity-stats {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.85rem;
-  margin-top: 0.85rem;
+  gap: 0.65rem;
+  margin-top: 1rem;
   color: #cbd5e1;
 }
 
+.activity-meta span {
+  padding: 0.35rem 0.55rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.07);
+}
+
 .activity-stats span {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  color: #dbeafe;
+}
+
+.feed-card > p[role='alert'] {
+  margin-bottom: 1rem;
+  padding: 0.8rem 1rem;
+  border-radius: 0.75rem;
+  background: #fff1f2;
+  color: #be123c;
 }
 
 @media (max-width: 640px) {
   .page-shell {
     padding-top: 2rem;
+  }
+
+  .feed-card {
+    max-height: none;
+    padding: 1.1rem;
+  }
+
+  .account-bar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .activity-list li {
+    padding: 1.1rem;
   }
 }

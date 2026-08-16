@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from './lib/supabaseClient';
 import type { Activity, Athlete } from './types';
 import StravaConnect from './StravaConnect';
@@ -6,6 +6,8 @@ import StravaConnect from './StravaConnect';
 type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>['data'] extends { session: infer S }
   ? S
   : null;
+
+const PAGE_SIZE = 20;
 
 function formatDuration(seconds: number) {
   const hrs = Math.floor(seconds / 3600);
@@ -21,19 +23,77 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [hasConnectedStrava, setHasConnectedStrava] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMoreActivities, setHasMoreActivities] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const activeUserIdRef = useRef<string | null>(null);
+  const nextActivityOffsetRef = useRef(0);
+  const isLoadingActivitiesRef = useRef(false);
+  const hasMoreActivitiesRef = useRef(false);
+  const feedCardRef = useRef<HTMLElement | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+  const loadActivityPage = useCallback(async (userId: string, offset: number) => {
+    if (isLoadingActivitiesRef.current) {
+      return;
+    }
+
+    isLoadingActivitiesRef.current = true;
+    if (offset === 0) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
+
+    const { data, error } = await supabase
+      .schema('stravad')
+      .from('activities')
+      .select('id:strava_activity_id, name, type, distance, moving_time, elapsed_time, start_date_local, average_speed, max_speed, total_elevation_gain')
+      .eq('user_id', userId)
+      .order('start_date_local', { ascending: false })
+      .range(offset, offset + PAGE_SIZE - 1);
+
+    if (activeUserIdRef.current === userId) {
+      if (error) {
+        setMessage(error.message);
+        setHasMoreActivities(false);
+        hasMoreActivitiesRef.current = false;
+      } else {
+        const page = (data ?? []) as Activity[];
+        setActivities((currentActivities) => offset === 0 ? page : [...currentActivities, ...page]);
+        nextActivityOffsetRef.current = offset + page.length;
+        const hasMore = page.length === PAGE_SIZE;
+        setHasMoreActivities(hasMore);
+        hasMoreActivitiesRef.current = hasMore;
+      }
+    }
+
+    isLoadingActivitiesRef.current = false;
+    if (activeUserIdRef.current === userId) {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (!session) {
+      activeUserIdRef.current = null;
       setActivities([]);
       setHasConnectedStrava(null);
       setAthlete(null);
+      setHasMoreActivities(false);
+      hasMoreActivitiesRef.current = false;
       return;
     }
 
     async function loadActivities(userId: string) {
+      activeUserIdRef.current = userId;
+      nextActivityOffsetRef.current = 0;
+      hasMoreActivitiesRef.current = false;
       setLoading(true);
       setMessage(null);
+      setActivities([]);
+      setHasMoreActivities(false);
 
       const { data: athlete, error: athleteError } = await supabase
         .schema('stravad')
@@ -43,6 +103,7 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
         .maybeSingle();
 
       if (athleteError) {
+        if (activeUserIdRef.current !== userId) return;
         setHasConnectedStrava(null);
         setActivities([]);
         setAthlete(null);
@@ -52,6 +113,7 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
       }
 
       const isConnected = Boolean(athlete);
+      if (activeUserIdRef.current !== userId) return;
       setHasConnectedStrava(isConnected);
 
       if (!isConnected) {
@@ -62,26 +124,30 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
       }
 
       setAthlete(athlete);
-
-      // TODO: customize this query, remove hardcoded fields, and add pagination
-      const { data, error } = await supabase
-        .schema('stravad')
-        .from('activities')
-        .select('name, type, distance, moving_time, elapsed_time, start_date_local, average_speed, max_speed, total_elevation_gain')
-        .eq('user_id', userId)
-        .order('start_date_local', { ascending: false })
-        .limit(20);
-
-      if (error) {
-        setMessage(error.message);
-      } else if (data) {
-        setActivities(data as Activity[]);
-      }
-      setLoading(false);
+      await loadActivityPage(userId, 0);
     }
 
     loadActivities(session.user.id);
-  }, [session]);
+  }, [session, loadActivityPage]);
+
+  useEffect(() => {
+    if (!session || hasConnectedStrava !== true || !feedCardRef.current || !loadMoreRef.current) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (
+        entry.isIntersecting
+        && hasMoreActivitiesRef.current
+        && !isLoadingActivitiesRef.current
+      ) {
+        void loadActivityPage(session.user.id, nextActivityOffsetRef.current);
+      }
+    }, { root: feedCardRef.current, rootMargin: '160px' });
+
+    observer.observe(loadMoreRef.current);
+    return () => observer.disconnect();
+  }, [hasConnectedStrava, hasMoreActivities, loadActivityPage, session]);
 
   const handleSignOut = async () => {
     setLoading(true);
@@ -90,7 +156,7 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
   };
 
   return (
-    <section className="card feed-card">
+    <section ref={feedCardRef} className="card feed-card">
       <div className="account-bar">
         <div>
           <strong>{session?.user.email}</strong>
@@ -111,7 +177,7 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
           {loading ? (
             <p>Loading activities…</p>
           ) : activities.length === 0 ? (
-            <p>No synced activities yet. Activities sync daily. We are working on adding more features!</p>
+            <p>No synced activities yet. Activities sync every hour. Come back soon!</p>
           ) : (
             <ul className="activity-list">
               {activities.map((activity) => (
@@ -134,6 +200,8 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
               ))}
             </ul>
           )}
+          {hasMoreActivities && <div ref={loadMoreRef} className="activity-load-more" aria-hidden="true" />}
+          {loadingMore && <p>Loading more activities…</p>}
         </>
       )}
     </section>
