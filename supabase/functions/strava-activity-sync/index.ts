@@ -25,8 +25,7 @@ const STRAVAD_SCHEMA = 'stravad';
 const STRAVA_TOKEN_URL = 'https://www.strava.com/oauth/token';
 const STRAVA_ACTIVITIES_URL = 'https://www.strava.com/api/v3/athlete/activities';
 const TOKEN_REFRESH_BUFFER_MS = 60_000;
-const LOOKBACK_SECONDS = 3 * 24 * 60 * 60;
-const BATCH_SIZE = 100;
+const BATCH_SIZE = 200;
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
@@ -36,6 +35,11 @@ const STRAVA_SYNC_CRON_SECRET = Deno.env.get('STRAVA_SYNC_CRON_SECRET');
 
 type Athlete = {
   user_id: string;
+  created_at: string;
+};
+
+type SyncedActivity = {
+  start_date_local: string;
 };
 
 type StoredToken = {
@@ -96,16 +100,16 @@ async function refreshToken(refreshToken: string) {
   };
 }
 
-async function fetchRecentActivities(accessToken: string): Promise<StravaActivity[]> {
-  const now = Math.floor(Date.now() / 1000)
-  const after = now - LOOKBACK_SECONDS;
-  const activities: StravaActivity[] = [];
+async function* fetchActivitiesAfter(
+  accessToken: string,
+  after: Date,
+): AsyncGenerator<StravaActivity[]> {
   let page = 1;
 
   while (true) {
     const url = new URL(STRAVA_ACTIVITIES_URL);
-    url.searchParams.set('after', String(after));
-    url.searchParams.set('per_page', '200');
+    url.searchParams.set('after', String(Math.floor(after.getTime() / 1000)));
+    url.searchParams.set('per_page', String(BATCH_SIZE));
     url.searchParams.set('page', String(page));
 
     const response = await fetch(url, {
@@ -121,15 +125,14 @@ async function fetchRecentActivities(accessToken: string): Promise<StravaActivit
       break;
     }
 
-    activities.push(...currentPage);
-    if (currentPage.length < 200) {
+    yield currentPage;
+    if (currentPage.length < BATCH_SIZE) {
       break;
     }
 
     page += 1;
   }
 
-  return activities;
 }
 
 Deno.serve(async (request) => {
@@ -155,7 +158,7 @@ Deno.serve(async (request) => {
     const { data: athletes, error: athletesError } = await supabase
       .schema(STRAVAD_SCHEMA)
       .from('athletes')
-      .select('user_id');
+      .select('user_id, created_at');
 
     if (athletesError) {
       throw athletesError;
@@ -202,36 +205,57 @@ Deno.serve(async (request) => {
           }
         }
 
-        const activities = await fetchRecentActivities(accessToken);
-        if (activities.length === 0) {
-          continue;
-        }
-
-        const { error: upsertError } = await supabase
+        const { data: lastSyncedActivity, error: lastSyncedActivityError } = await supabase
           .schema(STRAVAD_SCHEMA)
           .from('activities')
-          .upsert(
-            activities.map((activity) => ({
-              strava_activity_id: String(activity.id),
-              user_id: athlete.user_id,
-              name: activity.name,
-              type: activity.type,
-              distance: activity.distance,
-              moving_time: activity.moving_time,
-              elapsed_time: activity.elapsed_time,
-              start_date_local: activity.start_date_local,
-              average_speed: activity.average_speed ?? 0,
-              max_speed: activity.max_speed ?? 0,
-              total_elevation_gain: activity.total_elevation_gain ?? 0,
-            })),
-            { onConflict: 'strava_activity_id' },
-          );
+          .select('start_date_local')
+          .eq('user_id', athlete.user_id)
+          .order('start_date_local', { ascending: false })
+          .limit(1)
+          .maybeSingle();
 
-        if (upsertError) {
-          throw upsertError;
+        if (lastSyncedActivityError) {
+          throw lastSyncedActivityError;
         }
 
-        activitiesSynced += activities.length;
+        const syncAfter = new Date(
+          (lastSyncedActivity as SyncedActivity | null)?.start_date_local ?? athlete.created_at,
+        );
+        if (Number.isNaN(syncAfter.getTime())) {
+          throw new Error(`Invalid sync start date for athlete ${athlete.user_id}`);
+        }
+
+        console.info(`Processing activities for athlete ${athlete.user_id} after date ${lastSyncedActivity}`);
+
+        for await (const activities of fetchActivitiesAfter(accessToken, syncAfter)) {
+          const { error: upsertError } = await supabase
+            .schema(STRAVAD_SCHEMA)
+            .from('activities')
+            .upsert(
+              activities.map((activity) => ({
+                strava_activity_id: String(activity.id),
+                user_id: athlete.user_id,
+                name: activity.name,
+                type: activity.type,
+                distance: activity.distance,
+                moving_time: activity.moving_time,
+                elapsed_time: activity.elapsed_time,
+                start_date_local: activity.start_date_local,
+                average_speed: activity.average_speed ?? 0,
+                max_speed: activity.max_speed ?? 0,
+                total_elevation_gain: activity.total_elevation_gain ?? 0,
+              })),
+              { onConflict: 'strava_activity_id' },
+            );
+
+          if (upsertError) {
+            throw upsertError;
+          }
+
+          activitiesSynced += activities.length;
+
+          console.info(`Synced ${activitiesSynced} activities so far for athlete ${athlete.user_id}`)
+        }
       } catch (error) {
         console.error(`Failed to sync Strava activities for ${athlete.user_id}`, error);
         failures.push({
