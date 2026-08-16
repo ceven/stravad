@@ -17,20 +17,13 @@ A lightweight React app that displays your Strava activities in fun ways, and al
 
 The Strava OAuth callback / exchange is implemented as a Supabase Edge Function (see `supabase/functions/strava-exchange`). This function performs the code->token exchange with Strava, verifies the caller's Supabase JWT, and stores tokens using the Supabase service role key (server-side only).
 
-- **Sync script**: `scripts/sync-strava.ts`
-  - Fetches recent Strava activities from the Strava API.
-  - Writes new activity rows into Supabase, avoiding duplicate imports.
-  - Refreshes the Strava OAuth token as needed.
-
 - **Database**: Supabase Postgres
   - Stores authenticated user data and Strava activity records.
   - Uses Supabase Auth for login, signup, and password reset.
 
 - **Workflows**: GitHub Actions
-  - `/.github/workflows/daily-sync.yml` runs the Strava sync script on a daily schedule and supports manual dispatch.
-  - The workflow updates Strava tokens in GitHub Secrets after refresh.
 
-- **Supabase Cron**: `strava-activity-sync` runs once every 24 hours (at 00:00 UTC). It refreshes each connected athlete's Strava token when necessary and upserts activities from the previous 24 hours into `stravad.activities`.
+- **Supabase Cron**: `strava-activity-sync` runs once every 24 hours (at 00:00 UTC). It refreshes each connected athlete's Strava token when necessary and upserts activities from the previous 24 hours into `stravad.activities` via function `supabase/functions/strava-activity-sync`
 
 ## Environment
 
@@ -43,21 +36,6 @@ The app expects runtime and build secrets in `.env`, Supabase, and GitHub Action
 - `STRAVA_CLIENT_ID`
 - `STRAVA_CLIENT_SECRET`
 - `STRAVA_SYNC_CRON_SECRET`
-
-### Deploy the daily Supabase sync
-
-The `Deploy Strava activity sync` GitHub Actions workflow provisions the Edge Function secrets, creates or updates the matching Vault secrets, deploys the function, and applies pending migrations. It runs when the sync function, Supabase migrations, or its workflow file changes on `main`; it can also be run manually.
-
-Set these GitHub Actions secrets before its first run:
-
-- `SUPABASE_ACCESS_TOKEN`
-- `SUPABASE_PROJECT_REF`
-- `SUPABASE_DB_PASSWORD`
-- `STRAVA_CLIENT_ID`
-- `STRAVA_CLIENT_SECRET`
-- `STRAVA_SYNC_CRON_SECRET` (a high-entropy value shared only by the workflow, Vault, and Edge Function)
-
-The scheduled job is named `sync-strava-activities-daily`. Inspect its runs with `select * from cron.job_run_details order by start_time desc;`.
 
 ## Run the project locally 
 
@@ -83,14 +61,47 @@ http://localhost:54323/project/default
 
 ### Run Frontend Locally
 
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-2. Start the app:
-   ```bash
-   npm run dev
-   ```
+1. Install dependencies with `npm install`
+2. Run `npm run dev` and open a browser tab with the url shown in logs.
+  
+## How to sync Strava activities in your local Supabase instance
+
+Make sure Supabase is running locally. Start the local Supabase stack:
+
+```bash
+supabase start
+```
+
+Serve the functions locally (uses the function env file in the repo):
+
+```bash
+supabase functions serve --debug --env-file supabase/functions/.env
+```
+
+Get a user JWT (replace `<SUPABASE_ANON_KEY>`, `<USER_EMAIL>`, `<USER_PASSWORD>`):
+
+```bash
+curl -X POST 'http://127.0.0.1:54321/auth/v1/token?grant_type=password' \
+  -H "apikey: <SUPABASE_ANON_KEY>" \
+  -H "Content-Type: application/json" \
+  --data '{"email":"<USER_EMAIL>","password":"<USER_PASSWORD>"}'
+```
+
+The response contains the user's access token (the JWT). Use that token to call the activity sync function:
+
+```bash
+curl -L -X POST 'http://127.0.0.1:54321/functions/v1/strava-activity-sync' \
+  -H "Authorization: Bearer <USER_JWT_TOKEN>" \
+  -H "apikey: <SUPABASE_ANON_KEY>" \
+  -H "Content-Type: application/json" \
+  -H "x-cron-secret: <CRON_SECRET>" \
+  --data '{"name":"Functions"}'
+```
+
+Notes:
+- Replace `<USER_JWT_TOKEN>` with the `access_token` returned from the token request above.
+- `x-cron-secret` is used to protect cron-invoked function endpoints in this project — set it in `supabase/functions/.env` and in your environment when calling locally.
+- If your function filename or path differs, replace `strava-activity-sync` with the correct function slug under `supabase/functions/`.
 
 
   ### Run the Supabase backend function locally

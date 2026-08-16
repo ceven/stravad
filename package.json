@@ -7,7 +7,6 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "sync": "ts-node --esm scripts/sync-strava.ts",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
