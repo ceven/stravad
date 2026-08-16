@@ -44,3 +44,5 @@ server/.env
 server/.env.local
 server/.env.*.local
 server/node_modules
+
+supabase/snippets

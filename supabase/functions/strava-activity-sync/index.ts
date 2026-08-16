@@ -1,10 +1,32 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
+import { createClient } from 'supabase';
+
+// Add timestamps to console methods
+const originalLog = console.log;
+const originalInfo = console.info;
+const originalError = console.error;
+const originalWarn = console.warn;
+
+const formatTimestamp = () => {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  const ms = String(now.getMilliseconds()).padStart(3, '0');
+  return `[${hours}:${minutes}:${seconds}.${ms}]`;
+};
+
+console.log = (...args) => originalLog(formatTimestamp(), ...args);
+console.info = (...args) => originalInfo(formatTimestamp(), ...args);
+console.error = (...args) => originalError(formatTimestamp(), ...args);
+console.warn = (...args) => originalWarn(formatTimestamp(), ...args);
+
 
 const STRAVAD_SCHEMA = 'stravad';
 const STRAVA_TOKEN_URL = 'https://www.strava.com/oauth/token';
 const STRAVA_ACTIVITIES_URL = 'https://www.strava.com/api/v3/athlete/activities';
 const TOKEN_REFRESH_BUFFER_MS = 60_000;
-const LOOKBACK_SECONDS = 24 * 60 * 60;
+const LOOKBACK_SECONDS = 3 * 24 * 60 * 60;
+const BATCH_SIZE = 100;
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
@@ -75,7 +97,8 @@ async function refreshToken(refreshToken: string) {
 }
 
 async function fetchRecentActivities(accessToken: string): Promise<StravaActivity[]> {
-  const after = Math.floor(Date.now() / 1000) - LOOKBACK_SECONDS;
+  const now = Math.floor(Date.now() / 1000)
+  const after = now - LOOKBACK_SECONDS;
   const activities: StravaActivity[] = [];
   let page = 1;
 
@@ -110,6 +133,8 @@ async function fetchRecentActivities(accessToken: string): Promise<StravaActivit
 }
 
 Deno.serve(async (request) => {
+  const startTime = performance.now();
+  
   if (request.method !== 'POST') {
     return jsonResponse({ error: 'Method not allowed' }, 405);
   }
@@ -117,6 +142,8 @@ Deno.serve(async (request) => {
   if (!STRAVA_SYNC_CRON_SECRET || request.headers.get('x-cron-secret') !== STRAVA_SYNC_CRON_SECRET) {
     return jsonResponse({ error: 'Unauthorized' }, 401);
   }
+
+  console.info("Start fetching most recent activities for athletes");
 
   try {
     const supabase = createClient(
@@ -214,8 +241,14 @@ Deno.serve(async (request) => {
       }
     }
 
+    const athletesProcessed = athletes?.length ?? 0
+
+    const elapsedMs = performance.now() - startTime;
+    const elapsedSecs = (elapsedMs / 1000).toFixed(2);
+    console.info(`Done fetching most recent activities for athletes. Took ${elapsedSecs}s for ${athletesProcessed} athletes and ${activitiesSynced} activities.`);
+
     return jsonResponse({
-      athletesProcessed: athletes?.length ?? 0,
+      athletesProcessed: athletesProcessed,
       activitiesSynced,
       failures,
     }, failures.length > 0 ? 207 : 200);
