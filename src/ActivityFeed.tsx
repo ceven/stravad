@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { supabase } from './lib/supabaseClient';
 import type { Activity, Athlete } from './types';
 import StravaConnect from './StravaConnect';
@@ -16,6 +16,35 @@ function formatDuration(seconds: number) {
   return [hrs, mins, secs]
     .map((value) => String(value).padStart(2, '0'))
     .join(':');
+}
+
+function ActivityNameBackground({ activityNames }: { activityNames: string[] }) {
+  const names = useMemo(() => {
+    if (activityNames.length === 0) {
+      return [];
+    }
+    
+    const shuffled = [...activityNames];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }, [activityNames]);
+
+  if (names.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="activity-name-background" aria-hidden="true">
+      {names.map((name, index) => (
+        <span className={`activity-name activity-name-${index % 3}`} key={`${name}-${index}`}>
+          {name}
+        </span>
+      ))}
+    </div>
+  );
 }
 
 export default function ActivityFeed({ session }: { session: SessionType }) {
@@ -155,55 +184,62 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
     setLoading(false);
   };
 
+  const activityNames = useMemo(
+    () => Array.from(new Set(activities.map((activity) => activity.name).filter(Boolean))),
+    [activities],
+  );
+
   return (
-    <section ref={feedCardRef} className="card feed-card">
-      <div className="account-bar">
-        <div>
-          <strong>{session?.user.email}</strong>
-          <p>{session?.user.id}</p>
+    <>
+      <ActivityNameBackground activityNames={activityNames} />
+      <section ref={feedCardRef} className="card feed-card">
+        <div className="account-bar">
+          <div>
+            <strong>{session?.user.email}</strong>
+          </div>
+          <button type="button" className="secondary" onClick={handleSignOut} disabled={loading}>
+            Sign out
+          </button>
         </div>
-        <button type="button" className="secondary" onClick={handleSignOut} disabled={loading}>
-          Sign out
-        </button>
-      </div>
 
-      {hasConnectedStrava === false && <StravaConnect />}
+        {hasConnectedStrava === false && <StravaConnect />}
 
-      {message && <p role="alert">{message}</p>}
+        {message && <p role="alert">{message}</p>}
 
-      {hasConnectedStrava === true && (
-        <>
-          <h2>Recent activities for {athlete?.first_name} {athlete?.last_name} </h2>
-          {loading ? (
-            <p>Loading activities…</p>
-          ) : activities.length === 0 ? (
-            <p>No synced activities yet. Activities sync every hour. Come back soon!</p>
-          ) : (
-            <ul className="activity-list">
-              {activities.map((activity) => (
-                <li key={activity.id}>
-                  <div className="activity-header">
-                    <h3>{activity.name}</h3>
-                    <span>{activity.type}</span>
-                  </div>
-                  <div className="activity-meta">
-                    <span>{new Date(activity.start_date_local).toLocaleDateString()}</span>
-                    <span>{(activity.distance / 1000).toFixed(1)} km</span>
-                    <span>{formatDuration(activity.moving_time)}</span>
-                  </div>
-                  <div className="activity-stats">
-                    <span>Avg {activity.average_speed.toFixed(2)} m/s</span>
-                    <span>Max {activity.max_speed.toFixed(2)} m/s</span>
-                    <span>Elevation {activity.total_elevation_gain.toFixed(0)} m</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-          {hasMoreActivities && <div ref={loadMoreRef} className="activity-load-more" aria-hidden="true" />}
-          {loadingMore && <p>Loading more activities…</p>}
-        </>
-      )}
-    </section>
+        {hasConnectedStrava === true && (
+          <>
+            <h2>Recent activities for {athlete?.first_name} {athlete?.last_name} </h2>
+            {loading ? (
+              <p>Loading activities…</p>
+            ) : activities.length === 0 ? (
+              <p>No synced activities yet. Activities sync every hour. Come back soon!</p>
+            ) : (
+              <ul className="activity-list">
+                {activities.map((activity) => (
+                  <li key={activity.id}>
+                    <div className="activity-header">
+                      <h3>{activity.name}</h3>
+                      <span>{activity.type}</span>
+                    </div>
+                    <div className="activity-meta">
+                      <span>{new Date(activity.start_date_local).toLocaleDateString()}</span>
+                      <span>{(activity.distance / 1000).toFixed(1)} km</span>
+                      <span>{formatDuration(activity.moving_time)}</span>
+                    </div>
+                    <div className="activity-stats">
+                      <span>Avg {activity.average_speed.toFixed(2)} m/s</span>
+                      <span>Max {activity.max_speed.toFixed(2)} m/s</span>
+                      <span>Elevation {activity.total_elevation_gain.toFixed(0)} m</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {hasMoreActivities && <div ref={loadMoreRef} className="activity-load-more" aria-hidden="true" />}
+            {loadingMore && <p>Loading more activities…</p>}
+          </>
+        )}
+      </section>
+    </>
   );
 }
