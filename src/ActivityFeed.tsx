@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { supabase } from './lib/supabaseClient';
 import type { Activity, Athlete } from './types';
 import StravaConnect from './StravaConnect';
+import ActivityCompare from './ActivityCompare';
 
 type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>['data'] extends { session: infer S }
   ? S
@@ -189,10 +190,38 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
     [activities],
   );
 
+  const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
+
+  const toggleSelectActivity = (id: string) => {
+    setSelectedActivities((prev) => {
+      if (prev.includes(id)) return prev.filter((p) => p !== id);
+      if (prev.length < 2) return [...prev, id];
+      // if two are already selected, drop the oldest (first) and add the new one
+      return [prev[1], id];
+    });
+  };
+
+  const clearSelection = () => setSelectedActivities([]);
+
+  const selectedActivityObjects = useMemo(() => {
+    return selectedActivities.map((id) => activities.find((a) => a.id === id)).filter(Boolean) as Activity[];
+  }, [selectedActivities, activities]);
+
+  function formatDistanceKm(meters: number) {
+    return `${(meters / 1000).toFixed(2)} km`;
+  }
+
+  function formatElevation(meters: number) {
+    return `${meters.toFixed(0)} m`;
+  }
+
+
   return (
     <>
       <ActivityNameBackground activityNames={activityNames} />
-      <section ref={feedCardRef} className="card feed-card">
+
+      <div className="feed-layout">
+        <section ref={feedCardRef} className="card feed-card">
         <div className="account-bar">
           <div>
             <strong>{session?.user.email}</strong>
@@ -208,6 +237,7 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
 
         {hasConnectedStrava === true && (
           <>
+            
             <h2>Recent activities for {athlete?.first_name} {athlete?.last_name} </h2>
             {loading ? (
               <p>Loading activities…</p>
@@ -215,12 +245,25 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
               <p>No synced activities yet. Activities sync every hour. Come back soon!</p>
             ) : (
               <ul className="activity-list">
-                {activities.map((activity) => (
-                  <li key={activity.id}>
-                    <div className="activity-header">
-                      <h3>{activity.name}</h3>
-                      <span>{activity.type}</span>
-                    </div>
+                {activities.map((activity) => {
+                  const selected = selectedActivities.includes(activity.id);
+                  return (
+                  <li key={activity.id} className={selected ? 'selected' : ''}>
+                    <label className="activity-select">
+                      <input
+                        type="checkbox"
+                        checked={selected}
+                        onChange={() => toggleSelectActivity(activity.id)}
+                        aria-label={`Select activity ${activity.name}`}
+                      />
+                      <span className={`select-btn ${selected ? 'is-selected' : ''}`}>
+                        {selected ? String(selectedActivities.indexOf(activity.id) + 1) : ''}
+                      </span>
+                      <div className="activity-header">
+                        <h3>{activity.name}</h3>
+                        <span>{activity.type}</span>
+                      </div>
+                    </label>
                     <div className="activity-meta">
                       <span>{new Date(activity.start_date_local).toLocaleDateString()}</span>
                       <span>{(activity.distance / 1000).toFixed(1)} km</span>
@@ -232,14 +275,21 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
                       <span>Elevation {activity.total_elevation_gain.toFixed(0)} m</span>
                     </div>
                   </li>
-                ))}
+                )})}
               </ul>
             )}
             {hasMoreActivities && <div ref={loadMoreRef} className="activity-load-more" aria-hidden="true" />}
             {loadingMore && <p>Loading more activities…</p>}
           </>
         )}
-      </section>
+        </section>
+
+        <aside className="comparison-column">
+          {selectedActivityObjects.length === 2 && (
+            <ActivityCompare activities={selectedActivityObjects} onClear={clearSelection} />
+          )}
+        </aside>
+      </div>
     </>
   );
 }

@@ -3,6 +3,10 @@
   color: #111827;
   background: #ffffff;
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --brand: #fc4c02;
+  --brand-strong: #c73b00;
+  --muted: #64748b;
+  --card-bg: #ffffff;
 }
 
 * {
@@ -107,6 +111,163 @@ p {
   padding: 1.75rem;
   box-shadow: 0 24px 90px rgba(15, 23, 42, 0.12);
 }
+
+.comparison-card {
+  width: min(1000px, 100%);
+  margin: 0 auto 1rem;
+  display: block;
+  position: sticky;
+  top: 1rem;
+  z-index: 5;
+  border-color: color-mix(in srgb, var(--brand) 70%, #fff 30%);
+  background: linear-gradient(180deg, rgba(255,247,240,0.9), var(--card-bg));
+  padding: 1.25rem;
+  border-radius: 1rem;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+  /* allow horizontal scrolling within the card when content is wider than the column */
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 0.75rem;
+}
+
+/* Two-column layout: feed + comparison column */
+.feed-layout {
+  width: min(2000px, calc(100% - 2rem));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.comparison-column {
+  position: relative;
+  align-self: start;
+}
+
+.comparison-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  align-items: center;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  /* ensure table can be wider than the card and trigger horizontal scrolling */
+  min-width: 560px;
+}
+
+.comparison-table th,
+.comparison-table td {
+  text-align: left;
+  padding: 0.65rem 0.9rem;
+  border-bottom: 1px dashed rgba(15,23,42,0.06);
+  color: #0f172a;
+  white-space: nowrap;
+}
+
+.comparison-table thead th {
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.comparison-col strong {
+  display: block;
+  color: #0f172a;
+}
+
+.activity-select {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.activity-select input[type="checkbox"] {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+/* Hide native checkbox visually but keep it accessible */
+.activity-select input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.select-btn {
+  width: 40px;
+  height: 40px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.06);
+  color: var(--brand);
+  border: 1px solid rgba(255,255,255,0.06);
+  font-weight: 700;
+  margin-right: 0.6rem;
+  transition: transform 0.12s ease, background 0.12s ease;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.08);
+}
+
+.select-btn.is-selected {
+  background: linear-gradient(180deg, var(--brand) 0%, var(--brand-strong) 100%);
+  color: white;
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--brand) 60%, #000 40%);
+}
+
+.activity-select .activity-header {
+  margin: 0; /* keep compact when select button shown */
+}
+
+.activity-list li.selected {
+  outline: 3px solid rgba(252,76,2,0.14);
+  transform: translateY(-3px) scale(1.01);
+  background: linear-gradient(180deg, #111827 0%, #0b1220 100%);
+  border-color: color-mix(in srgb, var(--brand) 60%, #ffffff 40%);
+}
+
+.comparison-card .comparison-col strong {
+  color: var(--brand-strong);
+}
+
+.comparison-table td:nth-child(4), .comparison-table th:nth-child(4) {
+  color: var(--brand-strong);
+}
+
+/* Horizontal scrollbar styling for comparison card */
+.comparison-card::-webkit-scrollbar {
+  height: 0.45rem;
+}
+.comparison-card::-webkit-scrollbar-thumb {
+  background: rgba(252,76,2,0.28);
+  border-radius: 999px;
+}
+
+.comparison-card button {
+  background: transparent;
+  color: var(--brand);
+  border: 1px solid rgba(252,76,2,0.12);
+  padding: 0.5rem 0.85rem;
+  border-radius: 0.65rem;
+}
+
+/* Ensure feed and comparison align */
+.feed-card, .comparison-card {
+  width: min(960px, 100%);
+  margin-left: auto;
+  margin-right: auto;
+}
+
 
 .auth-card {
   max-width: 520px;
@@ -326,5 +487,16 @@ button.oauth {
 
   .activity-list li {
     padding: 1.1rem;
+  }
+  .comparison-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  .comparison-card {
+    position: relative;
+    top: 0;
+  }
+  .feed-layout {
+    display: block;
   }
 }
