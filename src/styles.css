@@ -135,7 +135,7 @@ p {
 .feed-layout {
   width: min(2000px, calc(100% - 2rem));
   margin: 0 auto;
-  display: grid;
+  display: flex;
   grid-template-columns: 1fr auto;
   gap: 1.5rem;
   align-items: start;

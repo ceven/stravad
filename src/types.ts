@@ -1,3 +1,5 @@
+import { supabase } from "./lib/supabaseClient";
+
 export type Activity = {
   id: string;
   name: string;
@@ -18,3 +20,7 @@ export type Athlete = {
   first_name: string, 
   last_name: string
 };
+
+export type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>['data'] extends { session: infer S }
+  ? S
+  : null;

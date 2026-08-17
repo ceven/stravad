@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { supabase } from './lib/supabaseClient';
-import type { Activity, Athlete } from './types';
+import type { Activity, Athlete, SessionType } from './types';
 import StravaConnect from './StravaConnect';
 import ActivityCompare from './ActivityCompare';
+import ActivityAggregates from './ActivityAggregates';
+import UserPanel from './UserPanel';
 
-type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>['data'] extends { session: infer S }
-  ? S
-  : null;
+
 
 const PAGE_SIZE = 20;
 
@@ -179,12 +179,6 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
     return () => observer.disconnect();
   }, [hasConnectedStrava, hasMoreActivities, loadActivityPage, session]);
 
-  const handleSignOut = async () => {
-    setLoading(true);
-    await supabase.auth.signOut();
-    setLoading(false);
-  };
-
   const activityNames = useMemo(
     () => Array.from(new Set(activities.map((activity) => activity.name).filter(Boolean))),
     [activities],
@@ -219,17 +213,10 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
   return (
     <>
       <ActivityNameBackground activityNames={activityNames} />
+      <UserPanel session={session} />
 
       <div className="feed-layout">
         <section ref={feedCardRef} className="card feed-card">
-        <div className="account-bar">
-          <div>
-            <strong>{session?.user.email}</strong>
-          </div>
-          <button type="button" className="secondary" onClick={handleSignOut} disabled={loading}>
-            Sign out
-          </button>
-        </div>
 
         {hasConnectedStrava === false && <StravaConnect />}
 
@@ -288,6 +275,7 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
           {selectedActivityObjects.length > 0 && (
             <ActivityCompare activities={selectedActivityObjects} onClear={clearSelection} />
           )}
+          {hasConnectedStrava === true && <ActivityAggregates session={session} />}
         </aside>
       </div>
     </>
