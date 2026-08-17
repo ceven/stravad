@@ -81,7 +81,7 @@ export default function ActivityCompare({ activities, onClear }: { activities: A
     };
   }, [activities, isStuck]);
 
-  if (!activities || activities.length !== 2) return null;
+  if (!activities || activities.length < 1) return null;
   const [a, b] = activities;
 
   return (
@@ -92,7 +92,7 @@ export default function ActivityCompare({ activities, onClear }: { activities: A
             <tr>
               <th></th>
               <th>{a.name}</th>
-              <th>{b.name}</th>
+              <th>{b ? b.name : `Select another activity`}</th>
               <th>Difference</th>
             </tr>
           </thead>
@@ -100,26 +100,26 @@ export default function ActivityCompare({ activities, onClear }: { activities: A
             <tr>
               <td>Date</td>
               <td>{formatDate(a.start_date_local)}</td>
-              <td>{formatDate(b.start_date_local)}</td>
+              <td>{b ? formatDate(b.start_date_local) : ``}</td>
               {/* <td>{formatDateDiff(a.start_date_local, b.start_date_local)}</td> */}
             </tr>
             <tr>
               <td>Distance</td>
               <td>{formatDistanceKm(a.distance)}</td>
-              <td>{formatDistanceKm(b.distance)}</td>
-              <td>{formatDistanceKm(b.distance - a.distance)}</td>
+              <td>{b ? formatDistanceKm(b.distance): ``}</td>
+              <td>{b ? formatDistanceKm(b?.distance - a.distance): ``}</td>
             </tr>
             <tr>
               <td>Moving time</td>
               <td>{formatDuration(a.moving_time)}</td>
-              <td>{formatDuration(b.moving_time)}</td>
-              <td>{formatDurationTime(b.moving_time - a.moving_time)}</td>
+              <td>{b ? formatDuration(b.moving_time): ``}</td>
+              <td>{b ? formatDurationTime(b.moving_time - a.moving_time): ``}</td>
             </tr>
             <tr>
               <td>Elevation</td>
               <td>{formatElevation(a.total_elevation_gain)}</td>
-              <td>{formatElevation(b.total_elevation_gain)}</td>
-              <td>{formatElevation(b.total_elevation_gain - a.total_elevation_gain)}</td>
+              <td>{b ? formatElevation(b.total_elevation_gain) : ``}</td>
+              <td>{b ? formatElevation(b?.total_elevation_gain - a.total_elevation_gain): ``}</td>
             </tr>
           </tbody>
         </table>

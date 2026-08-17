@@ -285,7 +285,7 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
         </section>
 
         <aside className="comparison-column">
-          {selectedActivityObjects.length === 2 && (
+          {selectedActivityObjects.length > 0 && (
             <ActivityCompare activities={selectedActivityObjects} onClear={clearSelection} />
           )}
         </aside>
