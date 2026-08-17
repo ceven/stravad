@@ -13,15 +13,16 @@ export default function ActivityAggregates( { session }: {session: SessionType})
         // cannot do: EXTRACT(YEAR FROM created_at)::int as year,
         const { data: activitiesAggregate, error } = await supabase
         .schema('stravad')
-        .from('activities')
+        .from('activities_aggregates')
         .select(`
+            year,
             type,
-            activity_count:id.count(),
-            total_distance:distance.sum(),
-            avg_distance:distance.avg(),
-            max_distance:distance.max()
+            activity_count:activity_count.sum(),
+            total_distance:total_distance.sum(),
+            total_elevation_gain:total_elevation_gain.sum()
         `)
-        .eq('user_id', userId);
+        .eq('user_id', userId)
+        .eq('year', new Date().getFullYear());
 
         if (error) {
             console.error('Error loading aggregates:', error);
@@ -58,21 +59,21 @@ export default function ActivityAggregates( { session }: {session: SessionType})
                     <table>
                         <thead>
                             <tr>
+                                <th>Year</th>
                                 <th>Type</th>
                                 <th>Count</th>
-                                <th>Total Distance</th>
-                                <th>Avg Distance</th>
-                                <th>Max Distance</th>
+                                <th>Total Distance (kms)</th>
+                                <th>Total Elevation Gain (kms)</th>
                             </tr>
                         </thead>
                         <tbody>
                             {aggregates.map((agg, idx) => (
                                 <tr key={idx}>
+                                    <td>{agg.year}</td>
                                     <td>{agg.type}</td>
                                     <td>{agg.activity_count}</td>
-                                    <td>{agg.total_distance?.toFixed(2)}</td>
-                                    <td>{agg.avg_distance?.toFixed(2)}</td>
-                                    <td>{agg.max_distance?.toFixed(2)}</td>
+                                    <td>{agg.total_distance?.toFixed(2)/1000}</td>
+                                    <td>{agg.total_elevation_gain?.toFixed(2)/1000}</td>
                                 </tr>
                             ))}
                         </tbody>

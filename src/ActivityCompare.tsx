@@ -85,7 +85,7 @@ export default function ActivityCompare({ activities, onClear }: { activities: A
   const [a, b] = activities;
 
   return (
-    <div className="comparison-wrapper">
+    <div>
       <section ref={cardRef} className="comparison-card card" aria-live="polite">
         <table className="comparison-table">
           <thead>

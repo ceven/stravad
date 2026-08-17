@@ -113,9 +113,10 @@ p {
 }
 
 .comparison-card {
-  width: min(1000px, 100%);
-  margin: 0 auto 1rem;
   display: block;
+  min-width: 0;
+  box-sizing: border-box;
+  margin: 0 auto 1rem;
   position: sticky;
   top: 1rem;
   z-index: 5;
@@ -132,33 +133,23 @@ p {
 }
 
 /* Two-column layout: feed + comparison column */
-.feed-layout {
-  width: min(2000px, calc(100% - 2rem));
+.activities-layout {
+  width: 100%;
   margin: 0 auto;
-  display: flex;
-  grid-template-columns: 1fr auto;
+  display: grid;
+  grid-template-columns: auto auto;
   gap: 1.5rem;
   align-items: start;
 }
 
-.comparison-column {
+.activity-column {
   position: relative;
   align-self: start;
 }
 
-.comparison-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 1rem;
-  align-items: center;
-}
-
 .comparison-table {
-  width: 100%;
   border-collapse: collapse;
   margin-top: 1rem;
-  /* ensure table can be wider than the card and trigger horizontal scrolling */
-  min-width: 560px;
 }
 
 .comparison-table th,
@@ -263,7 +254,7 @@ p {
 
 /* Ensure feed and comparison align */
 .feed-card, .comparison-card {
-  width: min(960px, 100%);
+  width: 100%;
   margin-left: auto;
   margin-right: auto;
 }
@@ -274,8 +265,7 @@ p {
 }
 
 .feed-card {
-  width: min(100%, 960px);
-  max-width: none;
+  width: 100%;
   max-height: min(78vh, 820px);
   padding: clamp(1.25rem, 3vw, 2.5rem);
   border-color: rgba(252, 76, 2, 0.22);
@@ -507,15 +497,11 @@ button.oauth {
   .activity-list li {
     padding: 1.1rem;
   }
-  .comparison-grid {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
-  }
   .comparison-card {
     position: relative;
     top: 0;
   }
-  .feed-layout {
+  .activities-layout{
     display: block;
   }
 }

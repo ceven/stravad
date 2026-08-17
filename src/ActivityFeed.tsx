@@ -214,69 +214,70 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
     <>
       <ActivityNameBackground activityNames={activityNames} />
       <UserPanel session={session} />
+      {hasConnectedStrava === false && <StravaConnect />}
 
-      <div className="feed-layout">
-        <section ref={feedCardRef} className="card feed-card">
+      <div className="activities-layout">
+        <div className="activity-column">
+          <section ref={feedCardRef} className="card feed-card">
 
-        {hasConnectedStrava === false && <StravaConnect />}
+          {message && <p role="alert">{message}</p>}
 
-        {message && <p role="alert">{message}</p>}
-
-        {hasConnectedStrava === true && (
-          <>
-            
-            <h2>Recent activities for {athlete?.first_name} {athlete?.last_name} </h2>
-            {loading ? (
-              <p>Loading activities…</p>
-            ) : activities.length === 0 ? (
-              <p>No synced activities yet. Activities sync every hour. Come back soon!</p>
-            ) : (
-              <ul className="activity-list">
-                {activities.map((activity) => {
-                  const selected = selectedActivities.includes(activity.id);
-                  return (
-                  <li key={activity.id} className={selected ? 'selected' : ''}>
-                    <label className="activity-select">
-                      <input
-                        type="checkbox"
-                        checked={selected}
-                        onChange={() => toggleSelectActivity(activity.id)}
-                        aria-label={`Select activity ${activity.name}`}
-                      />
-                      <span className={`select-btn ${selected ? 'is-selected' : ''}`}>
-                        {selected ? String(selectedActivities.indexOf(activity.id) + 1) : ''}
-                      </span>
-                      <div className="activity-header">
-                        <h3>{activity.name}</h3>
-                        <span>{activity.type}</span>
+          {hasConnectedStrava === true && (
+            <>
+              
+              <h2>Recent activities for {athlete?.first_name} {athlete?.last_name} </h2>
+              {loading ? (
+                <p>Loading activities…</p>
+              ) : activities.length === 0 ? (
+                <p>No synced activities yet. Activities sync every hour. Come back soon!</p>
+              ) : (
+                <ul className="activity-list">
+                  {activities.map((activity) => {
+                    const selected = selectedActivities.includes(activity.id);
+                    return (
+                    <li key={activity.id} className={selected ? 'selected' : ''}>
+                      <label className="activity-select">
+                        <input
+                          type="checkbox"
+                          checked={selected}
+                          onChange={() => toggleSelectActivity(activity.id)}
+                          aria-label={`Select activity ${activity.name}`}
+                        />
+                        <span className={`select-btn ${selected ? 'is-selected' : ''}`}>
+                          {selected ? String(selectedActivities.indexOf(activity.id) + 1) : ''}
+                        </span>
+                        <div className="activity-header">
+                          <h3>{activity.name}</h3>
+                          <span>{activity.type}</span>
+                        </div>
+                      </label>
+                      <div className="activity-meta">
+                        <span>{new Date(activity.start_date_local).toLocaleDateString()}</span>
+                        <span>{(activity.distance / 1000).toFixed(1)} km</span>
+                        <span>{formatDuration(activity.moving_time)}</span>
                       </div>
-                    </label>
-                    <div className="activity-meta">
-                      <span>{new Date(activity.start_date_local).toLocaleDateString()}</span>
-                      <span>{(activity.distance / 1000).toFixed(1)} km</span>
-                      <span>{formatDuration(activity.moving_time)}</span>
-                    </div>
-                    <div className="activity-stats">
-                      <span>Avg {activity.average_speed.toFixed(2)} m/s</span>
-                      <span>Max {activity.max_speed.toFixed(2)} m/s</span>
-                      <span>Elevation {activity.total_elevation_gain.toFixed(0)} m</span>
-                    </div>
-                  </li>
-                )})}
-              </ul>
-            )}
-            {hasMoreActivities && <div ref={loadMoreRef} className="activity-load-more" aria-hidden="true" />}
-            {loadingMore && <p>Loading more activities…</p>}
-          </>
-        )}
-        </section>
+                      <div className="activity-stats">
+                        <span>Avg {activity.average_speed.toFixed(2)} m/s</span>
+                        <span>Max {activity.max_speed.toFixed(2)} m/s</span>
+                        <span>Elevation {activity.total_elevation_gain.toFixed(0)} m</span>
+                      </div>
+                    </li>
+                  )})}
+                </ul>
+              )}
+              {hasMoreActivities && <div ref={loadMoreRef} className="activity-load-more" aria-hidden="true" />}
+              {loadingMore && <p>Loading more activities…</p>}
+            </>
+          )}
+          </section>
+        </div>
 
-        <aside className="comparison-column">
+        <div className="activity-column">
           {selectedActivityObjects.length > 0 && (
             <ActivityCompare activities={selectedActivityObjects} onClear={clearSelection} />
           )}
           {hasConnectedStrava === true && <ActivityAggregates session={session} />}
-        </aside>
+        </div>
       </div>
     </>
   );
