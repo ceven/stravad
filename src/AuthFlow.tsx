@@ -95,6 +95,11 @@ export default function AuthFlow({
   };
 
   return (
+    <>
+      <header>
+        <h1>Stravad</h1>
+        <p>More fun with your Strava activities!</p>
+      </header>
     <section className="card auth-card">
       <h2>
         {mode === 'login'
@@ -195,5 +200,6 @@ export default function AuthFlow({
       ) : null}
       {message ? <p className="message">{message}</p> : null}
     </section>
+    </>
   );
 }

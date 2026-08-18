@@ -37,11 +37,6 @@ function AppContent() {
 
   return (
     <div className="page-shell">
-      <header>
-        <h1>Stravad</h1>
-        <p>More fun with your Strava activities!</p>
-      </header>
-
       {!session ? (
         <AuthFlow setSession={setSession} initialMode={initialAuthMode} />
       ) : (

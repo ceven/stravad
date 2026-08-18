@@ -1,7 +1,7 @@
 import { supabase } from './lib/supabaseClient';
 import type { SessionType } from './types';
 import { useEffect, useState } from 'react';
-import './ActivityAggregates.css';
+import './styles.css';
 
 export default function ActivityAggregates( { session }: {session: SessionType}) {
     const [aggregates, setAggregates] = useState<any[]>([]);
@@ -52,9 +52,8 @@ export default function ActivityAggregates( { session }: {session: SessionType})
     return (
         <>
             <div className="activity-aggregates">
-                <h2>Activity statistics</h2>
                 {aggregates.length === 0 ? (
-                    <p>No activities found</p>
+                    <p>No activity statistics available.</p>
                 ) : (
                     <table>
                         <thead>
