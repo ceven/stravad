@@ -5,6 +5,7 @@ import StravaConnect from './StravaConnect';
 import ActivityCompare from './ActivityCompare';
 import ActivityAggregates from './ActivityAggregates';
 import UserPanel from './UserPanel';
+import { activityIcon } from './lib/activityIcons';
 
 
 
@@ -248,7 +249,7 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
                         </span>
                         <div className="activity-header">
                           <h3>{activity.name}</h3>
-                          <span>{activity.type}</span>
+                          <span>{activityIcon(activity.type)} {activity.type}</span>
                         </div>
                       </label>
                       <div className="activity-meta">

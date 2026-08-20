@@ -1,0 +1,41 @@
+.activity-icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.5rem;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    background-color: #6b7280; /* default gray fallback */
+}
+
+.activity-icon--hike {
+    background-color: #059669; /* green */
+}
+
+.activity-icon--run {
+    background-color: #dc2626; /* red */
+}
+
+.activity-icon--walk {
+    background-color: #6254f5;
+}
+
+.activity-icon--bike {
+    background-color: #f59e0b; 
+}
+
+.activity-icon--swim {
+    background-color: #0891b2; 
+}
+
+.activity-icon--ski {
+    background-color: #3a85ed; 
+}
+
+.activity-icon--snowboard {
+    background-color: black; 
+}
