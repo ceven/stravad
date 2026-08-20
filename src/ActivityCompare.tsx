@@ -86,8 +86,9 @@ export default function ActivityCompare({ activities, onClear }: { activities: A
 
   return (
     <div>
-      <section ref={cardRef} className="comparison-card card" aria-live="polite">
-        <table className="comparison-table">
+      <section ref={cardRef} className="activity-table">
+        <div>
+        <table>
           <thead>
             <tr>
               <th></th>
@@ -101,7 +102,6 @@ export default function ActivityCompare({ activities, onClear }: { activities: A
               <td>Date</td>
               <td>{formatDate(a.start_date_local)}</td>
               <td>{b ? formatDate(b.start_date_local) : ``}</td>
-              {/* <td>{formatDateDiff(a.start_date_local, b.start_date_local)}</td> */}
             </tr>
             <tr>
               <td>Distance</td>
@@ -123,7 +123,8 @@ export default function ActivityCompare({ activities, onClear }: { activities: A
             </tr>
           </tbody>
         </table>
-        <div style={{ marginTop: 8 }}>
+        </div>
+        <div className="clear-selection">
           <button type="button" onClick={onClear}>Clear selection</button>
         </div>
       </section>

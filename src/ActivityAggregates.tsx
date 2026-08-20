@@ -71,7 +71,7 @@ export default function ActivityAggregates( { session }: {session: SessionType})
 
     return (
         <>
-            <div className="activity-aggregates">
+            <div className="activity-table">
                 {aggregates.length === 0 ? (
                     <p>No activity statistics available.</p>
                 ) : (

@@ -131,49 +131,6 @@ p {
   box-shadow: 0 24px 90px rgba(15, 23, 42, 0.12);
 }
 
-.comparison-card {
-  /* display: block; */
-  min-width: 0;
-  margin: 0 auto 1rem;
-  top: 1rem;
-  z-index: 5;
-  border-color: color-mix(in srgb, var(--brand) 70%, #fff 30%);
-  background: linear-gradient(180deg, rgba(255,247,240,0.9), var(--card-bg));
-  padding: 1.25rem;
-  border-radius: 1rem;
-  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
-  /* allow horizontal scrolling within the card when content is wider than the column */
-  overflow-x: auto;
-  overflow-y: visible;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 0.75rem;
-}
-
-.comparison-table {
-  border-collapse: collapse;
-  margin-top: 1rem;
-}
-
-.comparison-table th,
-.comparison-table td {
-  text-align: left;
-  padding: 0.65rem 0.9rem;
-  border-bottom: 1px dashed rgba(15,23,42,0.06);
-  color: #0f172a;
-  white-space: nowrap;
-}
-
-.comparison-table thead th {
-  color: var(--muted);
-  font-weight: 700;
-  font-size: 0.95rem;
-}
-
-.comparison-col strong {
-  display: block;
-  color: #0f172a;
-}
-
 .activity-select {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -227,31 +184,6 @@ p {
   transform: translateY(-3px) scale(1.01);
   background: linear-gradient(180deg, #111827 0%, #0b1220 100%);
   border-color: color-mix(in srgb, var(--brand) 60%, #ffffff 40%);
-}
-
-.comparison-card .comparison-col strong {
-  color: var(--brand-strong);
-}
-
-.comparison-table td:nth-child(4), .comparison-table th:nth-child(4) {
-  color: var(--brand-strong);
-}
-
-/* Horizontal scrollbar styling for comparison card */
-.comparison-card::-webkit-scrollbar {
-  height: 0.45rem;
-}
-.comparison-card::-webkit-scrollbar-thumb {
-  background: rgba(252,76,2,0.28);
-  border-radius: 999px;
-}
-
-.comparison-card button {
-  background: transparent;
-  color: var(--brand);
-  border: 1px solid rgba(252,76,2,0.12);
-  padding: 0.5rem 0.85rem;
-  border-radius: 0.65rem;
 }
 
 .auth-card {
@@ -426,7 +358,7 @@ button.oauth {
   background: rgba(104, 171, 200, 0.16);
   color: #8dd3ef;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: clamp(0.5rem, 2.5vw, 0.85rem);
 }
 
 .activity-meta,
@@ -457,10 +389,10 @@ button.oauth {
   color: #be123c;
 }
 
-.activity-aggregates {
+.activity-table {
   width: 100%;
   margin: 0 auto 1rem;
-  display: flex;
+  display: block;
   min-width: 0;
   top: 1rem;
   z-index: 5;
@@ -476,25 +408,25 @@ button.oauth {
   padding-bottom: 0.75rem;
 }
 
-.activity-aggregates h2 {
+.activity-table h2 {
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0;
   color: var(--text-primary, #1a1a1a);
 }
 
-.activity-aggregates table {
+.activity-table table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.875rem;
 }
 
-.activity-aggregates thead {
+.activity-table thead {
   background-color: var(--bg-secondary, rgba(255, 166, 0, 0.169));
   border-bottom: 2px solid var(--border-color, rgba(255, 166, 0, 0.028));
 }
 
-.activity-aggregates th {
+.activity-table th {
   padding: 0.75rem;
   text-align: left;
   font-weight: 600;
@@ -504,21 +436,21 @@ button.oauth {
   letter-spacing: 0.5px;
 }
 
-.activity-aggregates tbody tr {
+.activity-table tbody tr {
   border-bottom: 1px solid var(--border-color, #e0e0e0);
   transition: background-color 0.2s ease;
 }
 
-.activity-aggregates tbody tr:hover {
+.activity-table tbody tr:hover {
   background-color: var(--bg-secondary, #f5f5f5);
 }
 
-.activity-aggregates td {
+.activity-table td {
   padding: 0.75rem;
   color: var(--text-primary, #1a1a1a);
 }
 
-.activity-aggregates tfoot {
+.activity-table tfoot {
   text-transform: uppercase;
   /* border-style: double; */
   border-top-style:solid;
@@ -526,22 +458,25 @@ button.oauth {
   font-weight: bold;
 }
 
-.activity-aggregates td:first-child {
+.activity-table td:first-child {
   font-weight: 600;
 }
 
-.activity-aggregates p {
+.activity-table p {
   text-align: center;
   color: var(--text-secondary, #666);
   padding: 1rem;
   margin: 0;
 }
 
-@media (max-width: 1100px) {
+.activity-table .clear-selection {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.5rem;
+  text-align: center;
+}
 
-  div:not(:last-child) {
-    margin-bottom: 1rem;
-  }
+@media (max-width: 900px) {
 
   .page-shell {
     padding: 0.5rem;
@@ -549,9 +484,23 @@ button.oauth {
     margin-right: 0.5rem;
   }
 
+  .account-bar {
+    margin: 0;
+    padding: 0;
+    margin-bottom: 0.5rem;
+  }
+
+  .account-bar .user-email {
+    padding: 1rem;
+    margin: 0;
+  }
+
   .activities-layout{
     display: block;
     width: 100%;
+    div:not(:last-child) {
+      margin-bottom: 0.5rem;
+    }
   }
 
   .activity-column, .activity-feed{
@@ -564,7 +513,6 @@ button.oauth {
   .feed-card {
     width: 100%;
     height: 50vh;
-    min-height: 500px;
   }
 
   .activity-list li {
