@@ -38,7 +38,7 @@ function ActivityNameBackground({ activityNames }: { activityNames: string[] }) 
   }
 
   return (
-    <div className="activity-name-background" aria-hidden="true">
+    <div className="activity-name-background">
       {names.map((name, index) => (
         <span className={`activity-name activity-name-${index % 3}`} key={`${name}-${index}`}>
           {name}
@@ -217,7 +217,7 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
       {hasConnectedStrava === false && <StravaConnect />}
 
       <div className="activities-layout">
-        <div className="activity-column">
+        <div className="activity-column activity-feed">
           <section ref={feedCardRef} className="card feed-card">
 
           {message && <p role="alert">{message}</p>}
@@ -265,7 +265,7 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
                   )})}
                 </ul>
               )}
-              {hasMoreActivities && <div ref={loadMoreRef} className="activity-load-more" aria-hidden="true" />}
+              {hasMoreActivities && <div ref={loadMoreRef} className="activity-load-more" />}
               {loadingMore && <p>Loading more activities…</p>}
             </>
           )}

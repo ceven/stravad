@@ -189,14 +189,16 @@ export default function AuthFlow({
         </button>
       </div>
       {mode === 'login' ? (
-        <button
-          type="button"
-          className="secondary"
-          onClick={() => setMode('reset')}
-          disabled={loading}
-        >
-          Forgot password?
-        </button>
+        <div className="button-row">
+          <button
+            type="button"
+            className="secondary"
+            onClick={() => setMode('reset')}
+            disabled={loading}
+          >
+            Forgot password?
+          </button>
+        </div>
       ) : null}
       {message ? <p className="message">{message}</p> : null}
     </section>

@@ -127,7 +127,6 @@ export default function ActivityCompare({ activities, onClear }: { activities: A
           <button type="button" onClick={onClear}>Clear selection</button>
         </div>
       </section>
-      <div ref={spacerRef} aria-hidden="true" />
     </div>
   );
 }

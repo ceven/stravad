@@ -23,7 +23,7 @@ The Strava OAuth callback / exchange is implemented as a Supabase Edge Function 
 
 - **Workflows**: GitHub Actions
 
-- **Supabase Cron**: `strava-activity-sync` runs once every 24 hours (at 00:00 UTC). It refreshes each connected athlete's Strava token when necessary, backfills from the athlete's creation date when no activities are stored, and otherwise upserts activities created after the latest synced activity into `stravad.activities` via function `supabase/functions/strava-activity-sync`.
+- **Supabase Cron**: `strava-activity-sync` runs every hour. It refreshes each connected athlete's Strava token when necessary, backfills from the athlete's creation date when no activities are stored, and otherwise upserts activities created after the latest synced activity into `stravad.activities` via function `supabase/functions/strava-activity-sync`.
 
 ## Environment
 

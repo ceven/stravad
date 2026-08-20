@@ -18,12 +18,14 @@ export default function UserPanel({ session }: {session: SessionType}) {
       
     return (
       <div className="account-bar">
-        <div>
+        <div className="user-email">
           <strong>{session?.user.email}</strong>
         </div>
-        <button type="button" className="secondary" onClick={handleSignOut} disabled={loading}>
-          Sign out
-        </button>
+        <div className="signout">
+          <button type="button" className="secondary" onClick={handleSignOut} disabled={loading}>
+            Sign out
+          </button>
+        </div>
       </div>
     );
 }
