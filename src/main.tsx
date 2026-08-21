@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './css/styles.css';
 import './css/activity-styles.css';
+import './css/background-styles.css'
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

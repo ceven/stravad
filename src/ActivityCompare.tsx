@@ -85,9 +85,7 @@ export default function ActivityCompare({ activities, onClear }: { activities: A
   const [a, b] = activities;
 
   return (
-    <div>
       <section ref={cardRef} className="activity-table">
-        <div>
         <table>
           <thead>
             <tr>
@@ -123,11 +121,9 @@ export default function ActivityCompare({ activities, onClear }: { activities: A
             </tr>
           </tbody>
         </table>
-        </div>
         <div className="clear-selection">
           <button type="button" onClick={onClear}>Clear selection</button>
         </div>
       </section>
-    </div>
   );
 }
