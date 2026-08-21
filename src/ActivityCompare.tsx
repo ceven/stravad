@@ -6,6 +6,21 @@ function formatDate(d: any) {
     return new Date(d).toLocaleDateString()
 }
 
+function formatNumberDays(dateA: string, dateB: string): string {
+    const msPerDay = 1000 * 60 * 60 * 24;
+
+    const a = new Date(dateA);
+    const b = new Date(dateB);
+
+    // Normalize to midnight so partial-day differences don't skew the count
+    const aMidnight = new Date(a.getFullYear(), a.getMonth(), a.getDate());
+    const bMidnight = new Date(b.getFullYear(), b.getMonth(), b.getDate());
+
+    const diffDays = Math.round((bMidnight.getTime() - aMidnight.getTime()) / msPerDay);
+
+    return `${diffDays} day${diffDays === 1 ? '' : 's'}`;
+}
+
 function formatDuration(seconds: number) {
   const hrs = Math.floor(seconds / 3600);
   const mins = Math.floor((seconds % 3600) / 60);
@@ -90,9 +105,9 @@ export default function ActivityCompare({ activities, onClear }: { activities: A
           <thead>
             <tr>
               <th></th>
-              <th>{a.name}</th>
-              <th>{b ? b.name : `Select another activity`}</th>
-              <th>Difference</th>
+              <th><div className="th-clamp">{a.name}</div></th>
+              <th><div className="th-clamp">{b ? b.name : `Select another activity`}</div></th>
+              <th><div className="th-clamp">Difference</div></th>
             </tr>
           </thead>
           <tbody>
@@ -100,6 +115,7 @@ export default function ActivityCompare({ activities, onClear }: { activities: A
               <td>Date</td>
               <td>{formatDate(a.start_date_local)}</td>
               <td>{b ? formatDate(b.start_date_local) : ``}</td>
+              <td>{b? formatNumberDays(a.start_date_local, b.start_date_local) : ``}</td>
             </tr>
             <tr>
               <td>Distance</td>

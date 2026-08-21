@@ -387,6 +387,12 @@ button.oauth {
   text-transform: uppercase;
   font-size: 0.75rem;
   letter-spacing: 0.5px;
+  max-width: 230px;
+}
+
+.activity-table th .th-clamp{
+  max-height: 50px;
+  overflow: hidden;
 }
 
 .activity-table tbody tr {
