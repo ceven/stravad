@@ -274,16 +274,23 @@ button.oauth {
   color: #f8fafc;
   font-size: 1.2rem;
   letter-spacing: -0.01em;
+  max-width: 80%;
 }
 
-.activity-header span {
-  align-self: flex-start;
+.activity-header .activity-type {
+  align-self: flex-end;
   padding: 0.25rem 0.6rem;
   border-radius: 999px;
   background: rgba(104, 171, 200, 0.16);
   color: #8dd3ef;
   font-weight: 600;
   font-size: clamp(0.5rem, 2.5vw, 0.85rem);
+}
+
+.activity-header .activity-icon-wrapper {
+  color: inherit;
+  background-color: transparent;
+  margin: 0;
 }
 
 .activity-meta,
@@ -422,6 +429,10 @@ button.oauth {
 
   .activity-list li {
     padding: 0.8rem;
+  }
+
+  .activity-header .activity-type-text{
+    display: none;
   }
 
 }

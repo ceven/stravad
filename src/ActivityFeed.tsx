@@ -248,7 +248,7 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
                         </span>
                         <div className="activity-header">
                           <h3>{activity.name}</h3>
-                          <span>{activityIcon(activity.type)} {activity.type}</span>
+                          <div className="activity-type">{activityIcon(activity.type)}<span className='activity-type-text'>{activity.type}</span></div>
                         </div>
                       </label>
                       <div className="activity-meta">
