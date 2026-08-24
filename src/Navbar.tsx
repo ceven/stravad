@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { supabase } from "./lib/supabaseClient";
-import { SessionType } from "./types";
+import { Athlete, SessionType } from "./types";
 
-export default function Navbar({ session }: {session: SessionType}) {
+export default function Navbar({ session, athlete }: {session: SessionType, athlete: Athlete | null}) {
 
     const [loading, setLoading] = useState(false);
 
@@ -32,7 +32,9 @@ export default function Navbar({ session }: {session: SessionType}) {
       <nav className="navbar">
           <div className="navbar-item account-dropdown">
             <i className="fa-solid fa-circle-user label-icon"></i>
-            <span className="label-text"> My account</span>
+            <span className="label-text"> 
+                {athlete && <> {athlete?.first_name} {athlete?.last_name}</>}
+                {!athlete && <>My account</>}</span>
             <div className="content">
               <div>{session?.user.email}</div>
               </div>

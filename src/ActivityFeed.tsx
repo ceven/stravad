@@ -214,7 +214,7 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
   return (
     <>
       <ActivityNameBackground activityNames={activityNames} />
-      <Navbar session={session} />
+      <Navbar session={session} athlete={athlete}/>
       {hasConnectedStrava === false && <StravaConnect />}
 
       <div className="activities-layout">
@@ -225,7 +225,6 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
           {hasConnectedStrava === true && (
             <>
               
-              <h2>Recent activities for {athlete?.first_name} {athlete?.last_name} </h2>
               {loading ? (
                 <p>Loading activities…</p>
               ) : activities.length === 0 ? (
@@ -237,20 +236,19 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
                     return (
                     <li key={activity.id} className={selected ? 'selected' : ''}>
                       <label className="activity-select">
-                        <input
-                          type="checkbox"
-                          checked={selected}
-                          onChange={() => toggleSelectActivity(activity.id)}
-                          aria-label={`Select activity ${activity.name}`}
-                        />
-                        <span className={`select-btn ${selected ? 'is-selected' : ''}`}>
-                          {selected ? String(selectedActivities.indexOf(activity.id) + 1) : ''}
-                        </span>
-                        <div className="activity-header">
-                          <h3>{activity.name}</h3>
+                        <div className="activity-select-header">
+                          <input
+                            type="checkbox"
+                            checked={selected}
+                            onChange={() => toggleSelectActivity(activity.id)}
+                            aria-label={`Select activity ${activity.name}`}
+                          />
+                          <span className={`select-btn ${selected ? 'is-selected' : ''}`}>
+                            {selected ? String(selectedActivities.indexOf(activity.id) + 1) : ''}
+                          </span>
+                          <h4 className="activity-feed-name">{activity.name}</h4>
                           <div className="activity-type">{activityIcon(activity.type)}<span className='activity-type-text'>{activity.type}</span></div>
                         </div>
-                      </label>
                       <div className="activity-meta">
                         <span>{new Date(activity.start_date_local).toLocaleDateString()}</span>
                         <span>{(activity.distance / 1000).toFixed(1)} km</span>
@@ -261,6 +259,7 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
                         <span>Max {activity.max_speed.toFixed(2)} m/s</span>
                         <span>Elevation {activity.total_elevation_gain.toFixed(0)} m</span>
                       </div>
+                      </label>
                     </li>
                   )})}
                 </ul>
