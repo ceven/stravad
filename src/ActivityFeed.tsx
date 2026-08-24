@@ -4,8 +4,8 @@ import type { Activity, Athlete, SessionType } from './types';
 import StravaConnect from './StravaConnect';
 import ActivityCompare from './ActivityCompare';
 import ActivityAggregates from './ActivityAggregates';
-import UserPanel from './UserPanel';
 import { activityIcon } from './lib/activityIcons';
+import Navbar from './Navbar';
 
 
 
@@ -214,7 +214,7 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
   return (
     <>
       <ActivityNameBackground activityNames={activityNames} />
-      <UserPanel session={session} />
+      <Navbar session={session} />
       {hasConnectedStrava === false && <StravaConnect />}
 
       <div className="activities-layout">
