@@ -218,7 +218,6 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
       {hasConnectedStrava === false && <StravaConnect />}
 
       <div className="activities-layout">
-        <div className="activity-column activity-feed">
           <section ref={feedCardRef} className="card feed-card">
 
           {message && <p role="alert">{message}</p>}
@@ -271,14 +270,13 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
             </>
           )}
           </section>
-        </div>
 
-        <div className="activity-column">
+          <section className='activity-column'>
           {selectedActivityObjects.length > 0 && (
             <ActivityCompare activities={selectedActivityObjects} onClear={clearSelection} />
           )}
           {hasConnectedStrava === true && <ActivityAggregates session={session} />}
-        </div>
+          </section>
       </div>
     </>
   );
