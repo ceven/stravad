@@ -16,19 +16,15 @@ export default function Navbar({ session, athlete }: {session: SessionType, athl
         navigate("/stravad")
     };
 
-    const getActivities = async () => {
-        setLoading(true);
-        console.log("not implemented")
-        setLoading(false);
-    };
-
     if (!session) {
         return null;
     }
       
     return (
       <nav className="navbar">
-          <div className="navbar-item account-dropdown">
+          <button type="button" className="navbar-item account-dropdown" onClick={
+            () => navigate(`/stravad/account`, {state: {session, athlete}})
+          }>
             <i className="fa-solid fa-circle-user label-icon"></i>
             <span className="label-text"> 
                 {athlete && <> {athlete?.first_name} {athlete?.last_name}</>}
@@ -36,7 +32,7 @@ export default function Navbar({ session, athlete }: {session: SessionType, athl
             <div className="content">
               <div>{session?.user.email}</div>
               </div>
-          </div>
+          </button>
           <button type="button" className="navbar-item" onClick=
           {() => navigate(`/stravad/athlete/activities`, { state: { session, athlete } })}
           disabled={loading}>

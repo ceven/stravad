@@ -10,7 +10,7 @@ export default function AuthFlow({
   setSession,
   initialMode,
 }: {
-  setSession: (s: Session | null) => void;
+  setSession: (session: Session | null) => void;
   initialMode?: AuthMode;
 }) {
   const [form, setForm] = useState(blankForm);

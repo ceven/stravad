@@ -1,0 +1,36 @@
+.stravad-account-page{
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+}
+
+.athlete-info{
+    margin-bottom: 1rem;
+}
+
+.stravad-profile {
+  display: block;
+  width: fit-content;
+  border-color: color-mix(in srgb, var(--brand) 70%, #fff 30%);
+  background: var(--linear-background);
+  padding: 1.25rem;
+  border-radius: 1rem;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+  /* allow horizontal scrolling within the card when content is wider than the column */
+  overflow: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+#stravad-profile-title{
+    display: block;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.stravad-profile table th{
+    text-align: left;
+}
+
+.stravad-profile table tr{
+    border-bottom: 1rem solid black;
+}

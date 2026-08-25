@@ -8,6 +8,8 @@ import type { Session } from '@supabase/supabase-js';
 import { supabase } from './lib/supabaseClient';
 import ActivityStatsPage from './ActivityStatsPage';
 import ActivityFeedPage from './ActivityFeedPage';
+import AccountPage from './AccountPage';
+import ProtectedRoute from './ProtectedRoute';
 
 type SessionType = Session | null;
 
@@ -54,10 +56,15 @@ export default function App() {
       <Routes>
         <Route path="/" element={<AppContent />} />
         <Route path="/stravad" element={<AppContent />} />
-        <Route path="/stravad/athlete/statistics" element={<ActivityStatsPage />}></Route>
-        <Route path="/stravad/athlete/activities" element={<ActivityFeedPage />}></Route>
         <Route path="/stravad/strava/callback" element={<StravaCallback />} />
         <Route path="/stravad/strava/connect" element={<StravaConnect />} />
+                  {/* Everything nested here requires authentication */}
+        <Route element={<ProtectedRoute />}>
+            <Route path="/stravad/account" element={<AccountPage />}></Route>
+            <Route path="/stravad/athlete/statistics" element={<ActivityStatsPage />}></Route>
+            <Route path="/stravad/athlete/activities" element={<ActivityFeedPage />}></Route>
+            <Route path="*" element={<AppContent />} />
+        </Route>
       </Routes>
     </HashRouter>
   );
