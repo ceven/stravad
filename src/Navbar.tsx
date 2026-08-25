@@ -1,21 +1,19 @@
 import { useState } from "react";
 import { supabase } from "./lib/supabaseClient";
 import { Athlete, SessionType } from "./types";
+import './css/navbar.css'
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar({ session, athlete }: {session: SessionType, athlete: Athlete | null}) {
 
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const handleSignOut = async () => {
         setLoading(true);
         await supabase.auth.signOut();
         setLoading(false);
-    };
-
-    const getStatistics = async () => {
-        setLoading(true);
-        console.log("not implemented")
-        setLoading(false);
+        navigate("/stravad")
     };
 
     const getActivities = async () => {
@@ -39,11 +37,15 @@ export default function Navbar({ session, athlete }: {session: SessionType, athl
               <div>{session?.user.email}</div>
               </div>
           </div>
-          <button type="button" className="navbar-item" onClick={getActivities} disabled={loading}>
+          <button type="button" className="navbar-item" onClick=
+          {() => navigate(`/stravad/athlete/activities`, { state: { session, athlete } })}
+          disabled={loading}>
               <i className="fa-solid fa-chart-column label-icon"></i>
               <span className="label-text"> Activities</span>
           </button>
-          <button type="button" className="navbar-item" onClick={getStatistics} disabled={loading}>
+          <button type="button" className="navbar-item" onClick={
+                      () => navigate(`/stravad/athlete/statistics`, { state: { session, athlete } })
+          } disabled={loading}>
               <i className="fa-solid fa-person-running label-icon"></i>
               <span className="label-text"> Statistics</span>
           </button>

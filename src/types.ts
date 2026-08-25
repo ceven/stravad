@@ -24,3 +24,8 @@ export type Athlete = {
 export type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>['data'] extends { session: infer S }
   ? S
   : null;
+
+export type SessionAthlete = {
+  session: SessionType;
+  athlete: Athlete;
+};

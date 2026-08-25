@@ -4,7 +4,6 @@ import App from './App';
 import './css/styles.css';
 import './css/activity-styles.css';
 import './css/background-styles.css'
-import './css/navbar.css'
 
 // Import the core Font Awesome CSS
 import '@fortawesome/fontawesome-free/css/fontawesome.css';

@@ -1,13 +1,9 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { supabase } from './lib/supabaseClient';
-import type { Activity, Athlete, SessionType } from './types';
-import StravaConnect from './StravaConnect';
-import ActivityCompare from './ActivityCompare';
-import ActivityAggregates from './ActivityAggregates';
-import { activityIcon } from './lib/activityIcons';
-import Navbar from './Navbar';
-
-
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Activity, Athlete, SessionType } from "./types";
+import { supabase } from "./lib/supabaseClient";
+import ActivityAggregates from "./ActivityAggregates";
+import ActivityCompare from "./ActivityCompare";
+import { activityIcon } from "./lib/activityIcons";
 
 const PAGE_SIZE = 20;
 
@@ -49,12 +45,10 @@ function ActivityNameBackground({ activityNames }: { activityNames: string[] }) 
   );
 }
 
-export default function ActivityFeed({ session }: { session: SessionType }) {
-  const [athlete, setAthlete] = useState<Athlete | null>(null);
-  const [activities, setActivities] = useState<Activity[]>([]);
-  const [hasConnectedStrava, setHasConnectedStrava] = useState<boolean | null>(null);
+export default function ActivityFeed({session, athlete}:{session: SessionType, athlete: Athlete}) {
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [hasMoreActivities, setHasMoreActivities] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const activeUserIdRef = useRef<string | null>(null);
@@ -110,8 +104,6 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
     if (!session) {
       activeUserIdRef.current = null;
       setActivities([]);
-      setHasConnectedStrava(null);
-      setAthlete(null);
       setHasMoreActivities(false);
       hasMoreActivitiesRef.current = false;
       return;
@@ -126,35 +118,22 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
       setActivities([]);
       setHasMoreActivities(false);
 
-      const { data: athlete, error: athleteError } = await supabase
-        .schema('stravad')
-        .from('athletes')
-        .select('user_id, strava_athlete_id, first_name, last_name')
-        .eq('user_id', userId)
-        .maybeSingle();
-
-      if (athleteError) {
+      if (!athlete) {
         if (activeUserIdRef.current !== userId) return;
-        setHasConnectedStrava(null);
         setActivities([]);
-        setAthlete(null);
-        setMessage(athleteError.message);
         setLoading(false);
         return;
       }
 
       const isConnected = Boolean(athlete);
       if (activeUserIdRef.current !== userId) return;
-      setHasConnectedStrava(isConnected);
 
       if (!isConnected) {
         setActivities([]);
         setLoading(false);
-        setAthlete(null);
         return;
       }
 
-      setAthlete(athlete);
       await loadActivityPage(userId, 0);
     }
 
@@ -162,7 +141,7 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
   }, [session, loadActivityPage]);
 
   useEffect(() => {
-    if (!session || hasConnectedStrava !== true || !feedCardRef.current || !loadMoreRef.current) {
+    if (!session || !feedCardRef.current || !loadMoreRef.current) {
       return;
     }
 
@@ -178,7 +157,7 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
 
     observer.observe(loadMoreRef.current);
     return () => observer.disconnect();
-  }, [hasConnectedStrava, hasMoreActivities, loadActivityPage, session]);
+  }, [hasMoreActivities, loadActivityPage, session]);
 
   const activityNames = useMemo(
     () => Array.from(new Set(activities.map((activity) => activity.name).filter(Boolean))),
@@ -202,27 +181,15 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
     return selectedActivities.map((id) => activities.find((a) => a.id === id)).filter(Boolean) as Activity[];
   }, [selectedActivities, activities]);
 
-  function formatDistanceKm(meters: number) {
-    return `${(meters / 1000).toFixed(2)} km`;
-  }
-
-  function formatElevation(meters: number) {
-    return `${meters.toFixed(0)} m`;
-  }
-
-
-  return (
-    <>
-      <ActivityNameBackground activityNames={activityNames} />
-      <Navbar session={session} athlete={athlete}/>
-      {hasConnectedStrava === false && <StravaConnect />}
-
-      <div className="activities-layout">
+    return(
+        <>
+        <ActivityNameBackground activityNames={activityNames} />
+         <div className="activities-layout">
           <section ref={feedCardRef} className="card feed-card">
 
           {message && <p role="alert">{message}</p>}
 
-          {hasConnectedStrava === true && (
+          {(
             <>
               
               {loading ? (
@@ -274,9 +241,8 @@ export default function ActivityFeed({ session }: { session: SessionType }) {
           {selectedActivityObjects.length > 0 && (
             <ActivityCompare activities={selectedActivityObjects} onClear={clearSelection} />
           )}
-          {hasConnectedStrava === true && <ActivityAggregates session={session} />}
           </section>
       </div>
     </>
-  );
+    );
 }

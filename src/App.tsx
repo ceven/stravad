@@ -3,9 +3,11 @@ import { HashRouter, Routes, Route } from 'react-router-dom';
 import StravaConnect from './StravaConnect';
 import StravaCallback from './StravaCallback';
 import AuthFlow from './AuthFlow';
-import ActivityFeed from './ActivityFeed';
+import ActivityMainPage from './ActivityMainPage';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from './lib/supabaseClient';
+import ActivityStatsPage from './ActivityStatsPage';
+import ActivityFeedPage from './ActivityFeedPage';
 
 type SessionType = Session | null;
 
@@ -40,7 +42,7 @@ function AppContent() {
       {!session ? (
         <AuthFlow setSession={setSession} initialMode={initialAuthMode} />
       ) : (
-        <ActivityFeed session={session} />
+        <ActivityMainPage session={session} />
       )}
     </div>
   );
@@ -52,6 +54,8 @@ export default function App() {
       <Routes>
         <Route path="/" element={<AppContent />} />
         <Route path="/stravad" element={<AppContent />} />
+        <Route path="/stravad/athlete/statistics" element={<ActivityStatsPage />}></Route>
+        <Route path="/stravad/athlete/activities" element={<ActivityFeedPage />}></Route>
         <Route path="/stravad/strava/callback" element={<StravaCallback />} />
         <Route path="/stravad/strava/connect" element={<StravaConnect />} />
       </Routes>
