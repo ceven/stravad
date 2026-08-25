@@ -17,9 +17,6 @@ export default function AccountPage() {
         <>
             <Navbar session={session} athlete={athlete}/>
             <div className="stravad-account-page">
-                {athlete && 
-                <div className="athlete-info">Connected to Strava as {athlete.first_name} {athlete.last_name}</div>
-                }
                 {session && <div className="stravad-profile"><span id="stravad-profile-title">Stravad profile</span>
                     <table>
                     <tbody>
@@ -31,10 +28,20 @@ export default function AccountPage() {
                             <th>Active Since</th>
                             <td>{formatDate(session.user.created_at)}</td>
                         </tr>
+                        {athlete && 
+                        <tr>
+                            <th>Strava name</th>
+                            <td>{athlete.first_name} {athlete.last_name}</td>
+                        </tr>
+                        }
+
                     </tbody>
                     </table>
                     </div>
                     }
+               {athlete && 
+                <div className="athlete-info"><i className="fa-brands fa-strava"></i> Connected to Strava as {athlete.first_name} {athlete.last_name}</div>
+                }
                 {athlete ? <StravaDisconnect /> : <StravaConnect />}
             </div>
 
