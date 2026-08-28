@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState } from 'react';
-import type { Activity } from './types';
+import type { Activity } from '../types/types';
 
 
 function formatDate(d: any) {

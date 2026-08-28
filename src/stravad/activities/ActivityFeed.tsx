@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Activity, Athlete, SessionType } from "./types";
-import { supabase } from "./lib/supabaseClient";
-import ActivityAggregates from "./ActivityAggregates";
+import { Activity, Athlete, SessionType } from "../types/types";
+import { supabase } from "../lib/supabaseClient";
 import ActivityCompare from "./ActivityCompare";
-import { activityIcon } from "./lib/activityIcons";
+import { activityIcon } from "../lib/activityIcons";
 
 const PAGE_SIZE = 20;
 

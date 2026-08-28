@@ -410,14 +410,13 @@ button.oauth {
   }  
 
   .feed-card {
-    max-height: 50vh;
     min-height: 20vh;
     max-width: 100%;
   }
 
   .activity-list {
       grid-auto-flow: column;
-      grid-template-rows: 1fr;
+      grid-template-rows: repeat(auto-fill, 1fr);
       scroll-behavior: smooth;
       overflow: scroll;
   }
@@ -439,12 +438,21 @@ button.oauth {
     padding: 0.1rem;
   }
 
+  .activity-select-header .activity-feed-name{
+    max-height: 2.5rem;
+    text-overflow: ellipsis;
+  }
+
   .activity-select .activity-stats{
     display: none;
   }
 
   .activity-select:hover .activity-stats{
     display: flex;
+  }
+
+  .activity-select:hover .activity-feed-name{
+    max-height: fit-content;
   }
 
 }

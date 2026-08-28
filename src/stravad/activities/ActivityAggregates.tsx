@@ -1,7 +1,7 @@
-import { supabase } from './lib/supabaseClient';
-import type { SessionType } from './types';
+import { supabase } from '../lib/supabaseClient';
+import type { SessionType } from '../types/types';
 import { useEffect, useState } from 'react';
-import { activityIcon } from './lib/activityIcons'
+import { activityIcon } from '../lib/activityIcons'
 
 function formatDistanceKm(meters: number) {
   return `${(meters / 1000).toFixed(2)}`;

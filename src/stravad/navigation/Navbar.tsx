@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { supabase } from "./lib/supabaseClient";
-import { Athlete, SessionType } from "./types";
-import './css/navbar.css'
+import { supabase } from "../lib/supabaseClient";
+import { Athlete, SessionType } from "../types/types";
+import './Navbar.css'
 import { useNavigate } from "react-router-dom";
 
 export default function Navbar({ session, athlete }: {session: SessionType, athlete: Athlete | null}) {

@@ -1,9 +1,9 @@
 import { useLocation } from "react-router-dom";
-import { SessionAthlete } from "./types";
-import Navbar from "./Navbar";
-import StravaConnect from "./StravaConnect";
-import StravaDisconnect from "./StravaDisconnect";
-import "./css/account-page.css"
+import { SessionAthlete } from "../types/types";
+import Navbar from "../navigation/Navbar";
+import StravaConnect from "../strava/connection/StravaConnect";
+import StravaDisconnect from "../strava/connection/StravaDisconnect";
+import "./AccountPage.css"
 
 function formatDate(d: any) {
     return new Date(d).toLocaleDateString()

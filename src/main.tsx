@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
-import './css/styles.css';
-import './css/activity-styles.css';
-import './css/background-styles.css'
+import App from './stravad/App';
+import './stravad/css/styles.css';
+import './stravad/css/activity-styles.css';
+import './stravad/css/background-styles.css'
 
 // Import the core Font Awesome CSS
 import '@fortawesome/fontawesome-free/css/fontawesome.css';

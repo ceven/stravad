@@ -1,7 +1,7 @@
 // src/StravaCallback.tsx
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { supabase } from './lib/supabaseClient';
+import { supabase } from '../../lib/supabaseClient';
 
 export default function StravaCallback() {
   const [searchParams] = useSearchParams();

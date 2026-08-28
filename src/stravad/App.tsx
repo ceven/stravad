@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
-import StravaConnect from './StravaConnect';
-import StravaCallback from './StravaCallback';
+import StravaConnect from './strava/connection/StravaConnect';
+import StravaCallback from './strava/connection/StravaCallback';
 import AuthFlow from './AuthFlow';
-import ActivityMainPage from './ActivityMainPage';
+import ActivityMainPage from './activities/ActivityMainPage';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from './lib/supabaseClient';
-import ActivityStatsPage from './ActivityStatsPage';
-import ActivityFeedPage from './ActivityFeedPage';
-import AccountPage from './AccountPage';
+import ActivityStatsPage from './activities/ActivityStatsPage';
+import ActivityFeedPage from './activities/ActivityFeedPage';
+import AccountPage from './account/AccountPage';
 import ProtectedRoute from './ProtectedRoute';
 
 type SessionType = Session | null;

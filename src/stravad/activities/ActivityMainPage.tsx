@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { supabase } from './lib/supabaseClient';
-import type { Athlete, SessionType } from './types';
-import StravaConnect from './StravaConnect';
+import { supabase } from '../lib/supabaseClient';
+import type { Athlete, SessionType } from '../types/types';
+import StravaConnect from '../strava/connection/StravaConnect';
 import ActivityFeed from './ActivityFeed';
-import Navbar from './Navbar';
-import ActivityCompare from './ActivityCompare';
-import ActivityAggregates from './ActivityAggregates';
+import Navbar from '../navigation/Navbar';
 
 export default function ActivityMainPage({ session }: { session: SessionType }) {
   const [loading, setLoading] = useState(false);

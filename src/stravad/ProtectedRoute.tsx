@@ -1,5 +1,5 @@
-import { Navigate, Outlet, Session, useLocation } from "react-router-dom";
-import { SessionAthlete, SessionType } from "./types";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { SessionAthlete } from "./types/types";
 
 
 export default function ProtectedRoute() {
