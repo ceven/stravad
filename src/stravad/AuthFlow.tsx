@@ -33,7 +33,13 @@ export default function AuthFlow({
     }
 
     const authAction = selectedMode === 'signup'
-      ? supabase.auth.signUp({ email: form.email, password: form.password })
+      ? supabase.auth.signUp({ 
+        email: form.email, 
+        password: form.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/stravad/`,
+      },
+      })
       : supabase.auth.signInWithPassword({ email: form.email, password: form.password });
 
     const { error } = await authAction;
