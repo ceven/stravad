@@ -37,12 +37,22 @@ function AppContent() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Session subscription and auth flow are handled by `AuthFlow` component.
-
   return (
     <div className="page-shell">
-      {!session ? (
-        <AuthFlow setSession={setSession} initialMode={initialAuthMode} />
+      {initialAuthMode === 'confirmReset' ? (
+        <AuthFlow
+          key="confirmReset"
+          setSession={setSession}
+          initialMode="confirmReset"
+          onPasswordResetComplete={() => setInitialAuthMode(undefined)}
+        />
+      ) : !session ? (
+        <AuthFlow
+          key="login"
+          setSession={setSession}
+          initialMode={initialAuthMode}
+          onPasswordResetComplete={() => setInitialAuthMode(undefined)}
+        />
       ) : (
         <ActivityMainPage session={session} />
       )}
@@ -63,8 +73,10 @@ export default function App() {
             <Route path="/stravad/account" element={<AccountPage />}></Route>
             <Route path="/stravad/athlete/statistics" element={<ActivityStatsPage />}></Route>
             <Route path="/stravad/athlete/activities" element={<ActivityFeedPage />}></Route>
-            <Route path="*" element={<AppContent />} />
         </Route>
+
+            <Route path="*" element={<AppContent />} />
+
       </Routes>
     </HashRouter>
   );

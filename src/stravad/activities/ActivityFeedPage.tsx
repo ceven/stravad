@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom";
-import { SessionAthlete } from "./types";
+import { SessionAthlete } from "../types/types";
 import ActivityMainPage from "./ActivityMainPage";
 
 export default function ActivityFeedPage(){

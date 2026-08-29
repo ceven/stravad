@@ -9,9 +9,11 @@ type AuthMode = 'login' | 'signup' | 'reset' | 'confirmReset';
 export default function AuthFlow({
   setSession,
   initialMode,
+  onPasswordResetComplete,
 }: {
   setSession: (session: Session | null) => void;
   initialMode?: AuthMode;
+  onPasswordResetComplete?: () => void;
 }) {
   const [form, setForm] = useState(blankForm);
   const [mode, setMode] = useState<AuthMode>(initialMode ?? 'login');
@@ -57,7 +59,7 @@ export default function AuthFlow({
     }
 
     const { error } = await supabase.auth.resetPasswordForEmail(form.email, {
-      redirectTo: window.location.origin,
+      redirectTo: `${window.location.origin}/stravad/`,
     });
 
     if (error) {
@@ -89,6 +91,7 @@ export default function AuthFlow({
       setMessage('Your password has been updated. Please log in with your new password.');
       setForm(blankForm);
       setMode('login');
+      onPasswordResetComplete?.(); // add this
     }
 
     setLoading(false);
