@@ -5,7 +5,7 @@
   align-content: center;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  margin: calc(-1 * var(--page-gutter)) calc(-1 * var(--page-gutter)) 0.5rem;
   padding: 0.3rem;
   overflow-wrap: break-word;
   overflow-x: scroll;

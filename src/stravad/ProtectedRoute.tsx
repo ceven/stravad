@@ -30,5 +30,9 @@ export default function ProtectedRoute() {
     return <Navigate to="/stravad" state={{ from: location }} replace />;
   }
 
-  return <Outlet />;
+  return (
+    <div className="page-shell">
+      <Outlet />
+    </div>
+  );
 }
