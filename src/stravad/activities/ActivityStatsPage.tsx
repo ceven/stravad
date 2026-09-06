@@ -1,6 +1,7 @@
 import { useLocation } from "react-router-dom";
 import ActivityAggregates from "./ActivityAggregates";
 import Navbar from "../navigation/Navbar";
+import Footer from "../navigation/Footer";
 import { SessionAthlete} from "../types/types";
 
 export default function ActivityStatsPage() {
@@ -15,6 +16,7 @@ export default function ActivityStatsPage() {
         <>
             <Navbar session={session} athlete={athlete}></Navbar>
             <ActivityAggregates session={session}></ActivityAggregates>
+            <Footer />
         </>
     );
 }

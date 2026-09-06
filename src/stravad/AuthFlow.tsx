@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from './lib/supabaseClient';
 import type { Session } from '@supabase/supabase-js';
+import Footer from './navigation/Footer';
 
 const blankForm = { email: '', password: '' };
 
@@ -211,6 +212,7 @@ export default function AuthFlow({
       ) : null}
       {message ? <p className="message">{message}</p> : null}
     </section>
+    <Footer />
     </>
   );
 }

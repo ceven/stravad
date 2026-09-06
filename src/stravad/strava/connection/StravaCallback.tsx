@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
+import Footer from '../../navigation/Footer';
 
 export default function StravaCallback() {
   const [searchParams] = useSearchParams();
@@ -48,7 +49,12 @@ export default function StravaCallback() {
     exchangeCode();
   }, [searchParams, navigate]);
 
-  if (status === 'connecting') return <p>Connecting your Strava account…</p>;
-  if (status === 'error') return <p>Something went wrong. Please try again later.</p>;
-  return <p>Strava connected! Redirecting…</p>;
+  return (
+    <>
+      {status === 'connecting' && <p>Connecting your Strava account…</p>}
+      {status === 'error' && <p>Something went wrong. Please try again later.</p>}
+      {status === 'success' && <p>Strava connected! Redirecting…</p>}
+      <Footer />
+    </>
+  );
 }

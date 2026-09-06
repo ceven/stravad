@@ -1,6 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { SessionAthlete } from "../types/types";
 import Navbar from "../navigation/Navbar";
+import Footer from "../navigation/Footer";
 import StravaConnect from "../strava/connection/StravaConnect";
 import StravaDisconnect from "../strava/connection/StravaDisconnect";
 import "./AccountPage.css"
@@ -44,7 +45,7 @@ export default function AccountPage() {
                 }
                 {athlete ? <StravaDisconnect /> : <StravaConnect />}
             </div>
-
+            <Footer />
         </>
     );
 }

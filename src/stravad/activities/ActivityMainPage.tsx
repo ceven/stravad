@@ -4,6 +4,7 @@ import type { Athlete, SessionType } from '../types/types';
 import StravaConnect from '../strava/connection/StravaConnect';
 import ActivityFeed from './ActivityFeed';
 import Navbar from '../navigation/Navbar';
+import Footer from '../navigation/Footer';
 
 export default function ActivityMainPage({ session }: { session: SessionType }) {
   const [loading, setLoading] = useState(false);
@@ -71,6 +72,7 @@ export default function ActivityMainPage({ session }: { session: SessionType }) 
           )
       )
       }
+      <Footer />
     </>
   );
 }

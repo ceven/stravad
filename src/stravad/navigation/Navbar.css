@@ -11,13 +11,14 @@
   overflow-x: scroll;
   text-overflow: ellipsis; 
   background: rgba(255, 255, 255, 0.486);
-  border-radius: 0.75rem;
+  border-bottom-left-radius: 0.75rem;
+  border-bottom-right-radius: 0.75rem;
 }
 
 .navbar-item{
     padding: 0.5rem;
     border: 1px solid rgba(252, 76, 2, 0.16);
-    border-radius: inherit;
+    border-radius: 0.75rem;
     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.1);
     color: var(--offwhite-colour);
     background-color: var(--brand);
